@@ -71,3 +71,20 @@ body::before {
 #battle-button:hover {
   background-color: #0056b3;
 }
+
+#hero-container {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 150px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+#hero-image {
+  width: 100%;
+  height: auto;
+  user-select: none;
+  filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.5));
+}
+
