@@ -107,7 +107,6 @@
       }
     }
     // グローバルにある Live2DModel を直接使う
-    //const Live2DModel = window.Live2DModel;  
     document.addEventListener("DOMContentLoaded", () => {
       const app = new PIXI.Application({
         width: 300,
@@ -132,10 +131,10 @@
       // Live2Dモデルを読み込む
       Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
         console.log("Model dimensions:", model.width, model.height);
-        model.scale.set(0.15); // サイズを小さく
-        model.anchor.set(0.5, 0.5); // 中心にアンカー
+        model.scale.set(0.02); //サイズ調整
+        model.anchor.set(0.5, 0.5);
         model.x = app.renderer.width / 2;
-        model.y = app.renderer.height / 2 + 20; // 少し下にずらす
+        model.y = app.renderer.height / 2 + 20;
         app.stage.addChild(model);
       }).catch(err => {
         console.error("Live2Dモデルの読み込みに失敗:", err);
