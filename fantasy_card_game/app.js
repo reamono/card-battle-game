@@ -70,11 +70,48 @@ function drawCards(n) {
   }
 }
 
+function parseEffect(effectStr) {
+  if (!effectStr) return [];
+  const parts = effectStr.split('+');
+
+  const effects = parts.map(part => {
+    part = part.trim();
+
+    let m;
+    m = part.match(/敵に(\d+)ダメージ×(\d+)回/);
+    if (m) return { target: "enemy", action: "multiDamage", value: Number(m[1]), times: Number(m[2]) };
+
+    m = part.match(/敵に(\d+)ダメージ/);
+    if (m) return { target: "enemy", action: "damage", value: Number(m[1]) };
+
+    m = part.match(/味方を(\d+)回復/);
+    if (m) return { target: "player", action: "heal", value: Number(m[1]) };
+
+    m = part.match(/(\d+)ターン燃焼効果/);
+    if (m) return { target: "enemy", action: "burn", duration: Number(m[1]) };
+
+    m = part.match(/(\d+)ブロックを得る/);
+    if (m) return { target: "player", action: "block", value: Number(m[1]) };
+
+    m = part.match(/(\d+)ターン凍結/);
+    if (m) return { target: "enemy", action: "freeze", duration: Number(m[1]) };
+
+    // 解析できなければ raw 情報を残す
+    return { raw: part };
+  });
+
+  return effects;
+}
+
+function prepareDeckEffects(deck) {
+  deck.forEach(card => {
+    card.effects = parseEffect(card.effect);
+  });
+}
+
 function playCard(card) {
   const cost = Number(card.cost) || 0;
   const power = Number(card.power) || 0;
-  console.log('cardの中身:', card);
-  console.log('card.cost:', card.cost, 'cost:', cost, 'card.power:', card.power, 'power:', power);
 
   if (mana < cost) {
     alert(`マナが足りません！（必要: ${cost}）`);
@@ -82,16 +119,45 @@ function playCard(card) {
   }
   mana -= cost;
 
-  if (card.type === '攻撃') {
-    enemy.takeDamage(power);
-    logAction(`プレイヤーは${card.name}を使った。敵に${power}ダメージ！`);
-  } else if (card.type === '防御') {
-    player.gainBlock(power);
-    logAction(`プレイヤーは${card.name}を使った。${power}ブロックを得た！`);
-  } else if (card.type === '回復') {
-    player.heal(power);
-    logAction(`プレイヤーは${card.name}を使った。${power}回復した！`);
-  }
+  // effects配列の効果を1つずつ適用
+  card.effects.forEach(effect => {
+    switch (effect.action) {
+      case "damage":
+        enemy.takeDamage(effect.value);
+        logAction(`プレイヤーは${card.name}を使った。敵に${effect.value}ダメージ！`);
+        break;
+
+      case "multiDamage":
+        for(let i = 0; i < effect.times; i++) {
+          enemy.takeDamage(effect.value);
+        }
+        logAction(`プレイヤーは${card.name}を使った。敵に${effect.value}ダメージ×${effect.times}回！`);
+        break;
+
+      case "heal":
+        player.heal(effect.value);
+        logAction(`プレイヤーは${card.name}を使った。${effect.value}回復した！`);
+        break;
+
+      case "block":
+        player.gainBlock(effect.value);
+        logAction(`プレイヤーは${card.name}を使った。${effect.value}ブロックを得た！`);
+        break;
+
+      case "burn":
+        // 燃焼効果は状態異常処理があればそちらで実装してください
+        logAction(`プレイヤーは${card.name}を使った。敵に${effect.duration}ターン燃焼効果を付与！`);
+        break;
+
+      case "freeze":
+        logAction(`プレイヤーは${card.name}を使った。敵に${effect.duration}ターン凍結効果を付与！`);
+        break;
+
+      default:
+        logAction(`プレイヤーは${card.name}を使ったが、未対応の効果: ${effect.raw || effect.action}`);
+        break;
+    }
+  });
 
   // プレイ後、捨て札へ
   discardPile.push(card);
@@ -199,7 +265,7 @@ function startBattle() {
 
   // デッキからカード10枚をセット
   playerDeck = shuffle([...deck]);
-  //playerDeck = [...deck]; // deckはHTML側のグローバル変数
+  prepareDeckEffects(playerDeck);
 
   // プレイヤー手札を空に
   playerHand = [];
