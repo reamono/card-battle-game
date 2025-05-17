@@ -3,6 +3,7 @@ class Player {
     this.maxHP = 30;
     this.hp = this.maxHP;
     this.block = 0;
+    this.reflectNextAttack = false; 
   }
   takeDamage(dmg) {
     const damageAfterBlock = Math.max(dmg - this.block, 0);
@@ -30,7 +31,13 @@ class Enemy {
     if (this.hp < 0) this.hp = 0;
   }
   attack(player) {
-    player.takeDamage(this.attackPower);
+    if (player.reflectNextAttack) {
+      logAction('プレイヤーは攻撃を反射した！敵に反射ダメージ！');
+      this.takeDamage(this.attackPower);
+      player.reflectNextAttack = false;
+    } else {
+      player.takeDamage(this.attackPower);
+    }
   }
 }
 
@@ -119,45 +126,35 @@ function playCard(card) {
   }
   mana -= cost;
 
-  // effects配列の効果を1つずつ適用
-  card.effects.forEach(effect => {
-    switch (effect.action) {
-      case "damage":
-        enemy.takeDamage(effect.value);
-        logAction(`プレイヤーは${card.name}を使った。敵に${effect.value}ダメージ！`);
-        break;
+  if (card.effects && Array.isArray(card.effects)) {
+    card.effects.forEach(effect => {
+      const value = Number(effect.value) || 0;
 
-      case "multiDamage":
-        for(let i = 0; i < effect.times; i++) {
-          enemy.takeDamage(effect.value);
-        }
-        logAction(`プレイヤーは${card.name}を使った。敵に${effect.value}ダメージ×${effect.times}回！`);
-        break;
-
-      case "heal":
-        player.heal(effect.value);
-        logAction(`プレイヤーは${card.name}を使った。${effect.value}回復した！`);
-        break;
-
-      case "block":
-        player.gainBlock(effect.value);
-        logAction(`プレイヤーは${card.name}を使った。${effect.value}ブロックを得た！`);
-        break;
-
-      case "burn":
-        // 燃焼効果は状態異常処理があればそちらで実装してください
-        logAction(`プレイヤーは${card.name}を使った。敵に${effect.duration}ターン燃焼効果を付与！`);
-        break;
-
-      case "freeze":
-        logAction(`プレイヤーは${card.name}を使った。敵に${effect.duration}ターン凍結効果を付与！`);
-        break;
-
-      default:
-        logAction(`プレイヤーは${card.name}を使ったが、未対応の効果: ${effect.raw || effect.action}`);
-        break;
-    }
-  });
+      switch (effect.action) {
+        case 'damage':
+          enemy.takeDamage(value);
+          logAction(`プレイヤーは${card.name}を使い、敵に${value}ダメージ！`);
+          break;
+        case 'block':
+          player.gainBlock(value);
+          logAction(`プレイヤーは${card.name}を使い、${value}ブロックを得た！`);
+          break;
+        case 'heal':
+          player.heal(value);
+          logAction(`プレイヤーは${card.name}を使い、${value}回復した！`);
+          break;
+        case 'reflect':
+          // reflect は次ターンの敵の攻撃を跳ね返すなど、ここでフラグを立てて処理
+          player.reflectNextAttack = true;
+          logAction(`プレイヤーは${card.name}を使い、次の攻撃を反射する！`);
+          break;
+        default:
+          logAction(`プレイヤーは${card.name}を使ったが、未対応の効果タイプ: ${effect.type}`);
+      }
+    });
+  } else {
+    logAction(`プレイヤーは${card.name}を使ったが、効果が設定されていません。`);
+  }
 
   // プレイ後、捨て札へ
   discardPile.push(card);
