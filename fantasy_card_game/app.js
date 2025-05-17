@@ -236,22 +236,3 @@ function shuffle(array) {
   }
   return array;
 }
-
-// Live2D初期化用
-let live2dApp = null;
-
-async function loadLive2DModel() {
-  // LAppDelegateをESモジュールとして読み込む
-  const { LAppDelegate } = await import('./lib/Samples/TypeScript/Demo/dist/lappdelegate.js');
-
-  const canvas = document.getElementById('live2d');
-  live2dApp = new LAppDelegate();
-  live2dApp.initialize(canvas);
-  live2dApp.run();
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  loadLive2DModel();
-});
-
-
