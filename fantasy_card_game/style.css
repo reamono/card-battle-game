@@ -7,7 +7,6 @@ body {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  /* 背景の上に薄い黒のオーバーレイをつけて文字を浮き上がらせる方法もあり */
   position: relative;
   z-index: 0;
 }
