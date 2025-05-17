@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>カード選択</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .card-container { display: flex; gap: 20px; flex-wrap: wrap; }
+    .card {
+      border: 1px solid #ccc;
+      padding: 10px;
+      width: 180px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .card:hover { background-color: #f0f0f0; }
+    .card img { width: 100%; height: auto; border-radius: 8px; }
+    #deck-count { font-weight: bold; margin-top: 20px; }
+    #battle-button { display: none; margin-top: 20px; font-size: 1.2em; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>初期デッキ構築</h1>
+  <p id="deck-count">現在のデッキ枚数: 0 / 10</p>
+  <button id="get-cards-btn" onclick="getCards()">3枚のカードを取得</button>
+  <div id="card-container" class="card-container"></div>
+  <button id="battle-button" onclick="startBattle()">バトル開始！</button>
+  <p id="message"></p>
+  <div id="playerHP">HP: 30/30 ブロック: 0</div>
+  <div id="mana">マナ: 3 / 3</div>
+  <div id="enemyHP">敵HP: 20/20</div>
+  <pre id="log" style="height: 150px; overflow-y: auto; border: 1px solid #aaa;"></pre>
+  <div id="hand"></div>
+  <script>
+    const API_BASE = "https://script.google.com/macros/s/AKfycbwmrF3D7q_pO8up68oFgOhKqyx6PbbVs4BOYv17atgBWWh1i_Q6-IKsEmq0mbNSnOVD/exec";
+    let deck = [];
+
+    function getCards() {
+      if (deck.length >= 10) return;
+      fetch(`${API_BASE}?action=get`)
+        .then(res => res.json())
+        .then(data => {
+          // 全カードの中からランダムに3枚選ぶ
+          const selected = [];
+          while (selected.length < 3 && selected.length < data.length) {
+            const randomIndex = Math.floor(Math.random() * data.length);
+            const card = data[randomIndex];
+            // 重複防止
+            if (!selected.includes(card)) selected.push(card);
+          }
+
+          const container = document.getElementById("card-container");
+          container.innerHTML = ""; // クリア
+
+          selected.forEach(card => {
+            const div = document.createElement("div");
+            div.className = "card";
+            div.innerHTML = `
+              <img src="${card.image || 'https://via.placeholder.com/150'}" alt="${card.name}">
+              <strong>${card.name}</strong><br>
+              種類: ${card.type}<br>
+              効果: ${card.effect}<br>
+              レア: ${card.rarity}
+            `;
+            div.onclick = () => addCard(card);
+            container.appendChild(div);
+          });
+        });
+    }
+
+    function addCard(card) {
+      if (deck.length >= 10) return;
+      deck.push(card);
+      document.getElementById("message").innerText = `${card.name} をデッキに追加しました！`;
+      updateDeckCount();
+
+      document.getElementById("card-container").innerHTML = "";
+      if (deck.length < 10) {
+        setTimeout(() => getCards(), 500);
+      }
+    }
+
+    function updateDeckCount() {
+      const countText = `現在のデッキ枚数: ${deck.length} / 10`;
+      document.getElementById("deck-count").innerText = countText;
+
+      const battleBtn = document.getElementById("battle-button");
+      const getCardsBtn = document.getElementById("get-cards-btn");
+
+      if (deck.length === 10) {
+        battleBtn.style.display = "inline-block";
+        getCardsBtn.style.display = "none";  // ← ここで非表示にする
+      } else {
+        battleBtn.style.display = "none";
+        getCardsBtn.style.display = "inline-block";  // 10枚未満なら表示
+      }
+    }
+
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
