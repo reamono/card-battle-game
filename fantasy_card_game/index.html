@@ -6,10 +6,34 @@
   <link rel="stylesheet" href="style.css" />
   <!-- Live2D Cubism Core SDK -->
   <script src="libs/live2dcubismcore.min.js"></script>
-  <!-- Pixi.js -->
-  <script src="https://unpkg.com/pixi.js@6.5.8/dist/browser/pixi.min.js"></script>
-  <!-- pixi-live2d-display -->
-  <script src="https://unpkg.com/pixi-live2d-display@0.4.0/dist/index.min.js"></script>
+  <!-- Pixi.js 本体 -->
+  <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.8/dist/browser/pixi.min.js"></script>
+  
+  <!-- pixi-live2d-display (Cubism 3以降対応) -->
+  <script type="module">
+    import { Live2DModel } from 'https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/index.es.js';
+  
+    const app = new PIXI.Application({
+      width: 300,
+      height: 500,
+      transparent: true,
+    });
+  
+    // Live2D表示用のdivにキャンバスを挿入
+    document.getElementById("live2d-app").appendChild(app.view);
+  
+    // モデルを読み込んで配置
+    Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
+      model.scale.set(0.2);
+      model.x = app.renderer.width / 2;
+      model.y = app.renderer.height;
+      model.anchor.set(0.5, 1);
+      app.stage.addChild(model);
+    }).catch(err => {
+      console.error("Live2Dモデルの読み込みに失敗:", err);
+    });
+  </script>
+
   <style>
     /* 画面右下にLive2Dモデルを配置 */
     #live2d-container {
@@ -103,14 +127,6 @@
         getCardsBtn.style.display = "inline-block";
       }
     }
-
-    // Live2D モデル読み込み
-    window.addEventListener('DOMContentLoaded', () => {
-      const app = new PIXI.Application({
-        width: 300,
-        height: 500,
-        transparent: true,
-      });
 
       document.getElementById("live2d-app").appendChild(app.view);
 
