@@ -8,33 +8,9 @@
   <script src="libs/live2dcubismcore.min.js"></script>
   <!-- Pixi.js -->
   <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.8/dist/browser/pixi.min.js"></script>
-  
-  <!-- Live2D Cubism Core -->
-  <script src="libs/live2dcubismcore.min.js"></script>
-  
   <!-- pixi-live2d-display UMD版 -->
   <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/index.umd.js"></script>
   
-  <script>
-    const app = new PIXI.Application({
-      width: 300,
-      height: 500,
-      transparent: true,
-    });
-  
-    document.getElementById("live2d-app").appendChild(app.view);
-  
-    PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
-      model.scale.set(0.2);
-      model.x = app.renderer.width / 2;
-      model.y = app.renderer.height;
-      model.anchor.set(0.5, 1);
-      app.stage.addChild(model);
-    }).catch(err => {
-      console.error("Live2Dモデルの読み込みに失敗:", err);
-    });
-  </script>
-
   <style>
     /* 画面右下にLive2Dモデルを配置 */
     #live2d-container {
@@ -61,11 +37,11 @@
   <pre id="log" style="height: 150px; overflow-y: auto; border: 1px solid #aaa;"></pre>
   <div id="hand"></div>
 
-  <!-- Live2Dモデル表示用コンテナ -->
+  <!-- ✅ Live2Dモデル表示用コンテナ -->
   <div id="live2d-container">
     <div id="live2d-app"></div>
   </div>
-
+  
   <script>
     const API_BASE = "https://script.google.com/macros/s/AKfycbwmrF3D7q_pO8up68oFgOhKqyx6PbbVs4BOYv17atgBWWh1i_Q6-IKsEmq0mbNSnOVD/exec";
     let deck = [];
@@ -128,8 +104,25 @@
         getCardsBtn.style.display = "inline-block";
       }
     }
+    document.addEventListener("DOMContentLoaded", () => {
+      const app = new PIXI.Application({
+        width: 300,
+        height: 500,
+        transparent: true,
+      });
 
-      document.getElementById("live2d-app").appendChild(app.view);
+      const container = document.getElementById("live2d-app");
+      if (!container) {
+        console.error("live2d-app コンテナが見つかりません");
+        return;
+      }
+
+      container.appendChild(app.view);
+
+      if (!PIXI.live2d || !PIXI.live2d.Live2DModel) {
+        console.error("PIXI.live2d.Live2DModel が読み込まれていません");
+        return;
+      }
 
       PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
         model.scale.set(0.2);
@@ -140,6 +133,7 @@
       }).catch(err => {
         console.error("Live2Dモデルの読み込みに失敗:", err);
       });
+    });
   </script>
 
   <!-- カードゲームロジック本体 -->
