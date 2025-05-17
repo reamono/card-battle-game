@@ -237,3 +237,25 @@ function shuffle(array) {
   return array;
 }
 
+<script src="lib/live2dcubismcore.js"></script>
+<script src="lib/framework/live2dcubismframework.js"></script>
+<script>
+  // Live2D初期化
+  let canvas = document.getElementById("live2d");
+  let app;
+
+  async function loadLive2DModel() {
+    const { LAppDelegate } = await import('./lib/framework/sample/LAppDelegate.js');
+    const { LAppDefine } = await import('./lib/framework/sample/lappdefine.js');
+
+    LAppDefine.ModelDir = "live2d/sample/"; // モデルディレクトリ
+    LAppDefine.ModelFile = "sample.model3.json"; // モデルファイル
+
+    app = new LAppDelegate();
+    app.initialize(canvas);
+    app.run();
+  }
+
+  window.addEventListener("DOMContentLoaded", loadLive2DModel);
+</script>
+
