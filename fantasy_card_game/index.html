@@ -134,7 +134,7 @@
         model.scale.set(0.05); //サイズ調整
         model.anchor.set(0.5, 0.5);
         model.x = app.renderer.width / 2;
-        model.y = app.renderer.height / 2 + 20;
+        model.y = app.renderer.height - 50; // 下から少し上（50px）
         app.stage.addChild(model);
       }).catch(err => {
         console.error("Live2Dモデルの読み込みに失敗:", err);
