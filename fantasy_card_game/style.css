@@ -1,4 +1,11 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 20px;
+}
+
 body {
+  min-height: 100vh;
   color: #fdfdfd;
   text-shadow: 1.5px 1.5px 3px rgba(0, 0, 0, 0.8); /* 影を少し濃く・大きくして文字がより読めるように */
   font-family: sans-serif;
