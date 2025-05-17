@@ -1,19 +1,31 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>カード選択</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <!-- Pixi.js & pixi-live2d-display をCDNから読み込み -->
   <script src="https://unpkg.com/pixi.js@6.5.8/dist/browser/pixi.min.js"></script>
   <script src="https://unpkg.com/pixi-live2d-display@0.4.0/dist/index.min.js"></script>
+  <style>
+    /* 画面右下にLive2Dモデルを配置 */
+    #live2d-container {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 300px;
+      height: 500px;
+      pointer-events: none; /* モデルのクリックを透過 */
+      z-index: 1000;
+    }
+  </style>
 </head>
 <body>
   <h1>初期デッキ構築</h1>
   <p id="deck-count">現在のデッキ枚数: 0 / 10</p>
   <button id="get-cards-btn" onclick="getCards()">3枚のカードを取得</button>
   <div id="card-container" class="card-container"></div>
-  <button id="battle-button" onclick="startBattle()">バトル開始！</button>
+  <button id="battle-button" onclick="startBattle()" style="display:none;">バトル開始！</button>
   <p id="message"></p>
   <div id="playerHP">HP: 30/30 ブロック: 0</div>
   <div id="mana">マナ: 3 / 3</div>
@@ -22,7 +34,7 @@
   <div id="hand"></div>
 
   <!-- Live2Dモデル表示用コンテナ -->
-  <div id="live2d-container" style="position: absolute; bottom: 0; right: 0;">
+  <div id="live2d-container">
     <div id="live2d-app"></div>
   </div>
 
@@ -99,12 +111,14 @@
 
       document.getElementById("live2d-app").appendChild(app.view);
 
-      // IceGirl.model3.json へのパス（相対パスでOK）
       PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
         model.scale.set(0.2);
-        model.x = 150;
-        model.y = 500;
+        model.x = app.renderer.width / 2;
+        model.y = app.renderer.height;
+        model.anchor.set(0.5, 1);
         app.stage.addChild(model);
+      }).catch(err => {
+        console.error("Live2Dモデルの読み込みに失敗:", err);
       });
     });
   </script>
