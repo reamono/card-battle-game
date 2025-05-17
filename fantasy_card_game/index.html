@@ -104,27 +104,31 @@
         getCardsBtn.style.display = "inline-block";
       }
     }
+    // グローバルにある Live2DModel を直接使う
+    const Live2DModel = window.Live2DModel;
+    
     document.addEventListener("DOMContentLoaded", () => {
       const app = new PIXI.Application({
         width: 300,
         height: 500,
         transparent: true,
       });
-
+    
       const container = document.getElementById("live2d-app");
       if (!container) {
         console.error("live2d-app コンテナが見つかりません");
         return;
       }
-
+    
       container.appendChild(app.view);
-
-      if (!PIXI.live2d || !PIXI.live2d.Live2DModel) {
-        console.error("PIXI.live2d.Live2DModel が読み込まれていません");
+    
+      if (!Live2DModel || typeof Live2DModel.from !== "function") {
+        console.error("Live2DModel が正しく読み込まれていません");
         return;
       }
-
-      PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
+    
+      // Live2Dモデルを読み込む
+      Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
         model.scale.set(0.2);
         model.x = app.renderer.width / 2;
         model.y = app.renderer.height;
