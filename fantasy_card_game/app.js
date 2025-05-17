@@ -148,6 +148,12 @@ function playCard(card) {
           player.reflectNextAttack = true;
           logAction(`プレイヤーは${card.name}を使い、次の攻撃を反射する！`);
           break;
+        case 'multiDamage':
+          for (let i = 0; i < effect.times; i++) {
+            enemy.takeDamage(value);
+            logAction(`プレイヤーは${card.name}で${i + 1}回目の攻撃！敵に${value}ダメージ！`);
+          }
+          break;
         default:
           logAction(`プレイヤーは${card.name}を使ったが、未対応の効果タイプ: ${effect.type}`);
       }
