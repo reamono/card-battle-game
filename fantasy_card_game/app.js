@@ -237,25 +237,21 @@ function shuffle(array) {
   return array;
 }
 
-<script src="lib/live2dcubismcore.js"></script>
-<script src="lib/framework/live2dcubismframework.js"></script>
-<script>
-  // Live2D初期化
-  let canvas = document.getElementById("live2d");
-  let app;
+// Live2D初期化用
+let live2dApp = null;
 
-  async function loadLive2DModel() {
-    const { LAppDelegate } = await import('./lib/framework/sample/LAppDelegate.js');
-    const { LAppDefine } = await import('./lib/framework/sample/lappdefine.js');
+async function loadLive2DModel() {
+  // LAppDelegateをESモジュールとして読み込む想定（ファイルパスは環境に合わせて調整）
+  const { LAppDelegate } = await import('./lib/framework/Samples/TypeScript/Demo/src/LAppDelegate.js');
 
-    LAppDefine.ModelDir = "live2d/sample/"; // モデルディレクトリ
-    LAppDefine.ModelFile = "sample.model3.json"; // モデルファイル
+  const canvas = document.getElementById('live2d');
+  live2dApp = new LAppDelegate();
+  live2dApp.initialize(canvas);
+  live2dApp.run();
+}
 
-    app = new LAppDelegate();
-    app.initialize(canvas);
-    app.run();
-  }
+window.addEventListener('DOMContentLoaded', () => {
+  loadLive2DModel();
+});
 
-  window.addEventListener("DOMContentLoaded", loadLive2DModel);
-</script>
 
