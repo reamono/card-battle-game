@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>カード選択</title>
-　<link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
+  <!-- Pixi.js & pixi-live2d-display をCDNから読み込み -->
+  <script src="https://unpkg.com/pixi.js@6.5.8/dist/browser/pixi.min.js"></script>
+  <script src="https://unpkg.com/pixi-live2d-display@0.4.0/dist/index.min.js"></script>
 </head>
 <body>
   <h1>初期デッキ構築</h1>
@@ -17,18 +20,12 @@
   <div id="enemyHP">敵HP: 20/20</div>
   <pre id="log" style="height: 150px; overflow-y: auto; border: 1px solid #aaa;"></pre>
   <div id="hand"></div>
-  <!-- Live2D SDKの初期化 -->
-  <script type="module">
-    import { LAppDelegate } from './sdk/dist/lappdelegate.js';
 
-    const canvas = document.getElementById("live2d");
-    const app = new LAppDelegate();
-    app.initialize(canvas);
-    app.run();
-  </script>
+  <!-- Live2Dモデル表示用コンテナ -->
+  <div id="live2d-container" style="position: absolute; bottom: 0; right: 0;">
+    <div id="live2d-app"></div>
+  </div>
 
-  <!-- Live2D Core ランタイム（必須） -->
-  <script src="sdk/dist/live2dcubismcore.js"></script>
   <script>
     const API_BASE = "https://script.google.com/macros/s/AKfycbwmrF3D7q_pO8up68oFgOhKqyx6PbbVs4BOYv17atgBWWh1i_Q6-IKsEmq0mbNSnOVD/exec";
     let deck = [];
@@ -38,17 +35,15 @@
       fetch(`${API_BASE}?action=get`)
         .then(res => res.json())
         .then(data => {
-          // 全カードの中からランダムに3枚選ぶ
           const selected = [];
           while (selected.length < 3 && selected.length < data.length) {
             const randomIndex = Math.floor(Math.random() * data.length);
             const card = data[randomIndex];
-            // 重複防止
             if (!selected.includes(card)) selected.push(card);
           }
 
           const container = document.getElementById("card-container");
-          container.innerHTML = ""; // クリア
+          container.innerHTML = "";
 
           selected.forEach(card => {
             const div = document.createElement("div");
@@ -87,14 +82,34 @@
 
       if (deck.length === 10) {
         battleBtn.style.display = "inline-block";
-        getCardsBtn.style.display = "none";  // ← ここで非表示にする
+        getCardsBtn.style.display = "none";
       } else {
         battleBtn.style.display = "none";
-        getCardsBtn.style.display = "inline-block";  // 10枚未満なら表示
+        getCardsBtn.style.display = "inline-block";
       }
     }
 
+    // Live2D モデル読み込み
+    window.addEventListener('DOMContentLoaded', () => {
+      const app = new PIXI.Application({
+        width: 300,
+        height: 500,
+        transparent: true,
+      });
+
+      document.getElementById("live2d-app").appendChild(app.view);
+
+      // IceGirl.model3.json へのパス（相対パスでOK）
+      PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
+        model.scale.set(0.2);
+        model.x = 150;
+        model.y = 500;
+        app.stage.addChild(model);
+      });
+    });
   </script>
+
+  <!-- カードゲームロジック本体 -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
