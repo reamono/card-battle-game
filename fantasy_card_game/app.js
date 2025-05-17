@@ -242,7 +242,7 @@ let live2dApp = null;
 
 async function loadLive2DModel() {
   // LAppDelegateをESモジュールとして読み込む想定（ファイルパスは環境に合わせて調整）
-  const { LAppDelegate } = await import('./lib/framework/Samples/TypeScript/Demo/dist/lappdelegate.js');
+  const { LAppDelegate } = await import('./lib/Samples/TypeScript/Demo/dist/lappdelegate.js');
 
   const canvas = document.getElementById('live2d');
   live2dApp = new LAppDelegate();
