@@ -6,24 +6,25 @@
   <link rel="stylesheet" href="style.css" />
   <!-- Live2D Cubism Core SDK -->
   <script src="libs/live2dcubismcore.min.js"></script>
-  <!-- Pixi.js 本体 -->
+  <!-- Pixi.js -->
   <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.8/dist/browser/pixi.min.js"></script>
   
-  <!-- pixi-live2d-display (Cubism 3以降対応) -->
-  <script type="module">
-    import { Live2DModel } from 'https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/index.es.js';
+  <!-- Live2D Cubism Core -->
+  <script src="libs/live2dcubismcore.min.js"></script>
   
+  <!-- pixi-live2d-display UMD版 -->
+  <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display@0.4.0/dist/index.umd.js"></script>
+  
+  <script>
     const app = new PIXI.Application({
       width: 300,
       height: 500,
       transparent: true,
     });
   
-    // Live2D表示用のdivにキャンバスを挿入
     document.getElementById("live2d-app").appendChild(app.view);
   
-    // モデルを読み込んで配置
-    Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
+    PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
       model.scale.set(0.2);
       model.x = app.renderer.width / 2;
       model.y = app.renderer.height;
@@ -139,7 +140,6 @@
       }).catch(err => {
         console.error("Live2Dモデルの読み込みに失敗:", err);
       });
-    });
   </script>
 
   <!-- カードゲームロジック本体 -->
