@@ -131,10 +131,11 @@
     
       // Live2Dモデルを読み込む
       Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
-        model.scale.set(0.2);
+        console.log("Model dimensions:", model.width, model.height);
+        model.scale.set(0.15); // サイズを小さく
+        model.anchor.set(0.5, 0.5); // 中心にアンカー
         model.x = app.renderer.width / 2;
-        model.y = app.renderer.height;
-        model.anchor.set(0.5, 1);
+        model.y = app.renderer.height / 2 + 20; // 少し下にずらす
         app.stage.addChild(model);
       }).catch(err => {
         console.error("Live2Dモデルの読み込みに失敗:", err);
