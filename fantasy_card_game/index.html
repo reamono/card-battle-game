@@ -43,6 +43,21 @@
   <div id="live2d-container">
     <div id="live2d-app"></div>
   </div>
+
+  <!-- ✅ 攻撃時のエフェクト実装 -->
+  <div id="attack-effect" style="
+    position: fixed;
+    top: 100px;
+    right: 100px;
+    width: 200px;
+    height: 200px;
+    display: none;
+    z-index: 999;
+    pointer-events: none;">
+    <img src="https://raw.githubusercontent.com/reamono/card-battle-game/main/fantasy_card_game/images/slashing-effect.gif" 
+         alt="炎" 
+         style="width: 100%; height: 100%;">
+  </div>
   
   <script>
     const API_BASE = "https://script.google.com/macros/s/AKfycbwmrF3D7q_pO8up68oFgOhKqyx6PbbVs4BOYv17atgBWWh1i_Q6-IKsEmq0mbNSnOVD/exec";
