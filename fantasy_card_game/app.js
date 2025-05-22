@@ -51,7 +51,7 @@ let playerHand = []; //手札
 let discardPile = []; //山札
 let mana = 3;          // 現在のマナ
 const maxMana = 3;     // 最大マナ
-let app;          // グローバル変数で宣言
+//let app;          // グローバル変数で宣言
 let live2dModel;  // グローバル変数で宣言
 
 function drawCards(n) {
