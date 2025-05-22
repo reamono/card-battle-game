@@ -365,3 +365,7 @@ function playMotion(name, priority = 1) {
   }
 }
 
+// 例：クリックで TapBody を再生
+app.view.addEventListener("click", () => {
+  playMotion("TapBody", 2);
+});
