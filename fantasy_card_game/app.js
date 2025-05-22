@@ -369,7 +369,6 @@ function playMotion(group, index) {
   } else {
     console.warn(`モーショングループ '${name}' が見つかりません`);
   }
-}
 
 // 例：クリックで TapBody を再生
 app.view.addEventListener("click", () => {
