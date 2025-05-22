@@ -324,3 +324,36 @@ function showAttackEffect() {
   }, 500);
 }
 
+// 1. モデル読み込み後に、Live2DModelオブジェクトにアクセス
+let live2dModel; // ここにモデルインスタンスを保持
+
+Live2DModel.from("model/IceGirl/IceGirl.model3.json").then(model => {
+  live2dModel = model;
+
+  model.x = 0;
+  model.y = 0;
+  model.scale.set(0.5);
+
+  app.stage.addChild(model);
+
+  // 2. 初期モーション再生（例: "Idle"）
+  playMotion("Idle", 0);
+});
+
+// 3. モーション再生関数
+function playMotion(name, priority = 1) {
+  if (!live2dModel || !live2dModel.internalModel || !live2dModel.internalModel.motionManager) {
+    console.warn("モデルまたはモーションマネージャが見つかりません");
+    return;
+  }
+
+  const motionManager = live2dModel.internalModel.motionManager;
+  const motionIndex = live2dModel.internalModel.motionGroups[name]?.length > 0 ? 0 : null;
+
+  if (motionIndex !== null) {
+    motionManager.startMotion(name, motionIndex, priority);
+  } else {
+    console.warn(`モーショングループ '${name}' が見つかりません`);
+  }
+}
+
