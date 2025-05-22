@@ -333,6 +333,8 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const container = document.getElementById("live2d-app");
+  container.innerHTML = ""; // ここで過去のcanvasを消す
+  
   if (!container) {
     console.error("live2d-app コンテナが見つかりません");
     return;
