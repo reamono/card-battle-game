@@ -325,6 +325,14 @@ function showAttackEffect() {
 }
 
 // 1. モデル読み込み後に、Live2DModelオブジェクトにアクセス
+// PixiJS アプリケーションを作成して表示
+const app = new PIXI.Application({
+  width: 300,
+  height: 500,
+  transparent: true
+});
+document.getElementById('live2d-container').appendChild(app.view);
+
 let live2dModel; // ここにモデルインスタンスを保持
 
 Live2DModel.from("model/IceGirl/IceGirl.model3.json").then(model => {
