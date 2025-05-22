@@ -51,6 +51,8 @@ let playerHand = []; //手札
 let discardPile = []; //山札
 let mana = 3;          // 現在のマナ
 const maxMana = 3;     // 最大マナ
+let app;          // グローバル変数で宣言
+let live2dModel;  // グローバル変数で宣言
 
 function drawCards(n) {
   for (let i = 0; i < n; i++) {
@@ -325,7 +327,7 @@ function showAttackEffect() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const app = new PIXI.Application({
+  app = new PIXI.Application({
     width: 300,
     height: 500,
     transparent: true,
@@ -341,37 +343,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json")
     .then(model => {
-      model.scale.set(0.06);
-      model.anchor.set(0.5, 0.5);
-      model.x = app.renderer.width / 2;
-      model.y = app.renderer.height / 2 + 20;
-      app.stage.addChild(model);
+      live2dModel = model;
+
+      live2dModel.scale.set(0.06);
+      live2dModel.anchor.set(0.5, 0.5);
+      live2dModel.x = app.renderer.width / 2;
+      live2dModel.y = app.renderer.height / 2 + 20;
+
+      app.stage.addChild(live2dModel);
     })
     .catch(err => {
       console.error("Live2Dモデルの読み込みに失敗:", err);
     });
+
+  // クリックイベントでモーション再生
+  app.view.addEventListener("click", () => {
+    console.log("Clicked!");
+    playMotion("TapBody", 2);
+  });
 });
 
-// モーションの準備を待つ関数（ポーリングでmotionGroupsが揃うのを確認）
-function waitForMotions() {
-  return new Promise(resolve => {
-    const check = () => {
-      if (
-        live2dModel &&
-        live2dModel.internalModel &&
-        live2dModel.internalModel.motionGroups &&
-        live2dModel.internalModel.motionGroups["Idle"]
-      ) {
-        resolve();
-      } else {
-        setTimeout(check, 100); // 100msごとに再チェック
-      }
-    };
-    check();
-  });
-}
-
-// モーション再生関数
+// モーション再生関数はグローバルに置く
 function playMotion(group, index) {
   if (!live2dModel || !live2dModel.internalModel.motionManager) {
     console.warn("モデルやモーションマネージャーが未定義");
@@ -386,10 +378,3 @@ function playMotion(group, index) {
 
   live2dModel.internalModel.motionManager.startMotion(group, index, 2);
 }
-
-// クリックイベントでモーション再生
-app.view.addEventListener("click", () => {
-  console.log("Clicked!");
-  playMotion("TapBody", 2);
-});
-
