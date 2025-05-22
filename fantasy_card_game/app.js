@@ -349,11 +349,17 @@ Live2DModel.from("model/IceGirl/IceGirl.model3.json").then(model => {
 });
 
 // 3. モーション再生関数
-function playMotion(name, priority = 1) {
-  if (!live2dModel || !live2dModel.internalModel || !live2dModel.internalModel.motionManager) {
-    console.warn("モデルまたはモーションマネージャが見つかりません");
+function playMotion(group, index) {
+  if (!live2dModel || !live2dModel.internalModel.motionManager) return;
+
+  const motions = live2dModel.internalModel.motionGroups[group];
+  if (!motions || !motions[index]) {
+    console.warn("モーショングループが存在しない:", group, index);
     return;
   }
+
+  live2dModel.internalModel.motionManager.startMotion(group, index, 2); // 2 = 中優先度
+}
 
   const motionManager = live2dModel.internalModel.motionManager;
   const motionIndex = live2dModel.internalModel.motionGroups[name]?.length > 0 ? 0 : null;
@@ -367,5 +373,6 @@ function playMotion(name, priority = 1) {
 
 // 例：クリックで TapBody を再生
 app.view.addEventListener("click", () => {
+  console.log("Clicked!");
   playMotion("TapBody", 2);
 });
