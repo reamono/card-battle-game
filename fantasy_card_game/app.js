@@ -324,33 +324,33 @@ function showAttackEffect() {
   }, 500);
 }
 
-const app = new PIXI.Application({
-  width: 300,
-  height: 500,
-  transparent: true
-});
-document.getElementById('live2d-container').appendChild(app.view);
-
-let live2dModel;
-
-PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json")
-  .then(model => {
-    live2dModel = model;
-
-    model.x = 0;
-    model.y = 0;
-    model.scale.set(0.5);
-
-    app.stage.addChild(model);
-
-    // モーションが読み込まれるのを待つ処理（少し待つか、animationcompleteイベントなど）
-    waitForMotions().then(() => {
-      playMotion("Idle", 0);
-    });
-  })
-  .catch(err => {
-    console.error("モデル読み込みエラー:", err);
+document.addEventListener("DOMContentLoaded", () => {
+  const app = new PIXI.Application({
+    width: 300,
+    height: 500,
+    transparent: true,
+    premultipliedAlpha: false,
   });
+
+  const container = document.getElementById("live2d-app");
+  if (!container) {
+    console.error("live2d-app コンテナが見つかりません");
+    return;
+  }
+  container.appendChild(app.view);
+
+  PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json")
+    .then(model => {
+      model.scale.set(0.06);
+      model.anchor.set(0.5, 0.5);
+      model.x = app.renderer.width / 2;
+      model.y = app.renderer.height / 2 + 20;
+      app.stage.addChild(model);
+    })
+    .catch(err => {
+      console.error("Live2Dモデルの読み込みに失敗:", err);
+    });
+});
 
 // モーションの準備を待つ関数（ポーリングでmotionGroupsが揃うのを確認）
 function waitForMotions() {
