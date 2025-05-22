@@ -134,6 +134,7 @@ function playCard(card) {
         case 'damage':
           enemy.takeDamage(value);
           logAction(`プレイヤーは${card.name}を使い、敵に${value}ダメージ！`);
+          showAttackEffect(); // 🔥エフェクト表示
           break;
         case 'block':
           player.gainBlock(value);
@@ -305,3 +306,21 @@ function shuffle(array) {
   }
   return array;
 }
+
+function showAttackEffect() {
+  const effect = document.getElementById('attack-effect');
+  if (!effect) return;
+
+  effect.style.display = 'block';
+  effect.style.opacity = '1';
+
+  setTimeout(() => {
+    effect.style.transition = 'opacity 0.5s';
+    effect.style.opacity = '0';
+    setTimeout(() => {
+      effect.style.display = 'none';
+      effect.style.transition = '';
+    }, 500);
+  }, 500);
+}
+
