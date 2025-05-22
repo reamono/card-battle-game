@@ -121,13 +121,15 @@
         getCardsBtn.style.display = "inline-block";
       }
     }
-    // グローバルにある Live2DModel を直接使う
+    let app;      // グローバルで保持
+    let live2dModel;
+    
     document.addEventListener("DOMContentLoaded", () => {
-      const app = new PIXI.Application({
+      app = new PIXI.Application({
         width: 300,
         height: 500,
         transparent: true,
-        premultipliedAlpha: false, 
+        premultipliedAlpha: false,
       });
     
       const container = document.getElementById("live2d-app");
@@ -137,17 +139,10 @@
       }
     
       container.appendChild(app.view);
-
-      const Live2DModel = PIXI.live2d.Live2DModel;
-      if (!Live2DModel || typeof Live2DModel.from !== "function") {
-        console.error("Live2DModel が正しく読み込まれていません");
-        return;
-      }
     
-      // Live2Dモデルを読み込む
-      Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
-        console.log("Model dimensions:", model.width, model.height);
-        model.scale.set(0.06); //サイズ調整
+      PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
+        live2dModel = model;
+        model.scale.set(0.1); // 少し大きくする
         model.anchor.set(0.5, 0.5);
         model.x = app.renderer.width / 2;
         model.y = app.renderer.height / 2 + 20;
