@@ -142,7 +142,7 @@
     
       PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
         live2dModel = model;
-        model.scale.set(0.0.7); // 2Dモデルのサイズ
+        model.scale.set(0, 0.7); // 2Dモデルのサイズ
         model.anchor.set(0.5, 0.5);
         model.x = app.renderer.width / 2;
         model.y = app.renderer.height / 2 + 20;
