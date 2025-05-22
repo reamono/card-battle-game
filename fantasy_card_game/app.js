@@ -335,7 +335,7 @@ document.getElementById('live2d-container').appendChild(app.view);
 
 let live2dModel; // ここにモデルインスタンスを保持
 
-PIXI.live2d.Live2DModel.from("model/IceGirl/IceGirl.model3.json").then(model => {
+PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
   live2dModel = model;
 
   model.x = 0;
