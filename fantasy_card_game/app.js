@@ -324,8 +324,6 @@ function showAttackEffect() {
   }, 500);
 }
 
-// 1. モデル読み込み後に、Live2DModelオブジェクトにアクセス
-// PixiJS アプリケーションを作成して表示
 const app = new PIXI.Application({
   width: 300,
   height: 500,
@@ -333,24 +331,52 @@ const app = new PIXI.Application({
 });
 document.getElementById('live2d-container').appendChild(app.view);
 
-let live2dModel; // ここにモデルインスタンスを保持
+let live2dModel;
 
-PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
-  live2dModel = model;
+PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json")
+  .then(model => {
+    live2dModel = model;
 
-  model.x = 0;
-  model.y = 0;
-  model.scale.set(0.5);
+    model.x = 0;
+    model.y = 0;
+    model.scale.set(0.5);
 
-  app.stage.addChild(model);
+    app.stage.addChild(model);
 
-  // 2. 初期モーション再生（例: "Idle"）
-  playMotion("Idle", 0);
-});
+    // モーションが読み込まれるのを待つ処理（少し待つか、animationcompleteイベントなど）
+    waitForMotions().then(() => {
+      playMotion("Idle", 0);
+    });
+  })
+  .catch(err => {
+    console.error("モデル読み込みエラー:", err);
+  });
 
-// 3. モーション再生関数
+// モーションの準備を待つ関数（ポーリングでmotionGroupsが揃うのを確認）
+function waitForMotions() {
+  return new Promise(resolve => {
+    const check = () => {
+      if (
+        live2dModel &&
+        live2dModel.internalModel &&
+        live2dModel.internalModel.motionGroups &&
+        live2dModel.internalModel.motionGroups["Idle"]
+      ) {
+        resolve();
+      } else {
+        setTimeout(check, 100); // 100msごとに再チェック
+      }
+    };
+    check();
+  });
+}
+
+// モーション再生関数
 function playMotion(group, index) {
-  if (!live2dModel || !live2dModel.internalModel.motionManager) return;
+  if (!live2dModel || !live2dModel.internalModel.motionManager) {
+    console.warn("モデルやモーションマネージャーが未定義");
+    return;
+  }
 
   const motions = live2dModel.internalModel.motionGroups[group];
   if (!motions || !motions[index]) {
@@ -358,20 +384,12 @@ function playMotion(group, index) {
     return;
   }
 
-  live2dModel.internalModel.motionManager.startMotion(group, index, 2); // 2 = 中優先度
+  live2dModel.internalModel.motionManager.startMotion(group, index, 2);
 }
 
-  const motionManager = live2dModel.internalModel.motionManager;
-  const motionIndex = live2dModel.internalModel.motionGroups[name]?.length > 0 ? 0 : null;
-
-  if (motionIndex !== null) {
-    motionManager.startMotion(name, motionIndex, priority);
-  } else {
-    console.warn(`モーショングループ '${name}' が見つかりません`);
-  }
-
-// 例：クリックで TapBody を再生
+// クリックイベントでモーション再生
 app.view.addEventListener("click", () => {
   console.log("Clicked!");
   playMotion("TapBody", 2);
 });
+
