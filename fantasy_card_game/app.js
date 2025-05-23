@@ -343,22 +343,44 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   container.appendChild(app.view);
 
-  PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json")
-    .then(model => {
-      live2dModel = model;
+  // PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json")
+  //   .then(model => {
+  //     live2dModel = model;
 
-      live2dModel.scale.set(0.06);
-      live2dModel.anchor.set(0.5, 0.5);
-      live2dModel.x = app.renderer.width / 2;
-      live2dModel.y = app.renderer.height / 2 + 20;
+  //     live2dModel.scale.set(0.06);
+  //     live2dModel.anchor.set(0.5, 0.5);
+  //     live2dModel.x = app.renderer.width / 2;
+  //     live2dModel.y = app.renderer.height / 2 + 20;
 
-      app.stage.addChild(live2dModel);
-      // ✅ モーショングループをログに出力
+  //     app.stage.addChild(live2dModel);
+  //     // ✅ モーショングループをログに出力
+  //     console.log("モーショングループ一覧:", Object.keys(model.internalModel.motionGroups));
+  //   })
+  //   .catch(err => {
+  //     console.error("Live2Dモデルの読み込みに失敗:", err);
+  //   });
+  PIXI.live2d.Live2DModel.from(modelPath).then((model) => {
+  live2dModel = model;
+
+  app.stage.addChild(model);
+
+  // Live2Dモデルの準備完了後にモーション一覧を出力
+  model.once("modelReady", () => {
+    if (model.internalModel && model.internalModel.motionGroups) {
       console.log("モーショングループ一覧:", Object.keys(model.internalModel.motionGroups));
-    })
-    .catch(err => {
-      console.error("Live2Dモデルの読み込みに失敗:", err);
-    });
+    } else {
+      console.warn("motionGroups がまだ取得できない状態です。");
+    }
+  });
+
+  // モデルの位置やスケーリングなど、他の初期化処理もここで書く
+  model.x = app.renderer.width / 2;
+  model.y = app.renderer.height / 2;
+  model.scale.set(0.3);
+
+  }).catch((e) => {
+    console.error("Live2Dモデルの読み込みに失敗:", e);
+  });
 
   // クリックイベントでモーション再生
   app.view.addEventListener("click", () => {
