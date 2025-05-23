@@ -1,438 +1,245 @@
-class Player {
-  constructor() {
-    this.maxHP = 30;
-    this.hp = this.maxHP;
-    this.block = 0;
-    this.reflectNextAttack = false; 
-  }
-  takeDamage(dmg) {
-    const damageAfterBlock = Math.max(dmg - this.block, 0);
-    this.block = Math.max(this.block - dmg, 0);
-    this.hp -= damageAfterBlock;
-    if (this.hp < 0) this.hp = 0;
-  }
-  gainBlock(amount) {
-    this.block += amount;
-  }
-  heal(amount) {
-    this.hp += amount;
-    if (this.hp > this.maxHP) this.hp = this.maxHP;
-  }
-}
-
-class Enemy {
-  constructor() {
-    this.maxHP = 20;
-    this.hp = this.maxHP;
-    this.attackPower = 4;
-  }
-  takeDamage(dmg) {
-    this.hp -= dmg;
-    if (this.hp < 0) this.hp = 0;
-  }
-  attack(player) {
-    if (player.reflectNextAttack) {
-      logAction('プレイヤーは攻撃を反射した！敵に反射ダメージ！');
-      this.takeDamage(this.attackPower);
-      player.reflectNextAttack = false;
-    } else {
-      player.takeDamage(this.attackPower);
-    }
-  }
-}
-
-// ゲーム状態
-const player = new Player();
-const enemy = new Enemy();
-let turn = 1;
-let isPlayerTurn = true;
-let playerDeck = []; //デッキ
-let playerHand = []; //手札
-let discardPile = []; //山札
-let mana = 3;          // 現在のマナ
-const maxMana = 3;     // 最大マナ
-let app; // グローバルに定義
+// --- Live2D関連 ---
+let app;
 let live2dModel;
 
-function drawCards(n) {
-  for (let i = 0; i < n; i++) {
-    if (playerDeck.length === 0) {
-      if (discardPile.length > 0) {
-        // 捨て札をシャッフルして山札へ
-        playerDeck = shuffle([...discardPile]);
-        discardPile = [];
-        logAction('捨て札をシャッフルして山札に戻しました。');
-      } else {
-        // 捨て札もなければ引けない
-        break;
-      }
-    }
-    const card = playerDeck.shift();
-    playerHand.push(card);
-    displayCardInHand(card);
-  }
-  // プレイ可能なカードがなければ警告 or 自動ターン終了
-  if (!canPlayAnyCard()) {
-    alert('使えるカードがありません。ターンを終了します。');
-    logAction('使えるカードがないため、ターンを終了します。');
-    endTurn(); // 自動終了処理だが、ボタンに変えることも可能
-  }
-}
-
-function parseEffect(effectStr) {
-  if (!effectStr) return [];
-  const parts = effectStr.split('+');
-
-  const effects = parts.map(part => {
-    part = part.trim();
-
-    let m;
-    m = part.match(/敵に(\d+)ダメージ×(\d+)回/);
-    if (m) return { target: "enemy", action: "multiDamage", value: Number(m[1]), times: Number(m[2]) };
-
-    m = part.match(/敵に(\d+)ダメージ/);
-    if (m) return { target: "enemy", action: "damage", value: Number(m[1]) };
-
-    m = part.match(/味方を(\d+)回復/);
-    if (m) return { target: "player", action: "heal", value: Number(m[1]) };
-
-    m = part.match(/(\d+)ターン燃焼効果/);
-    if (m) return { target: "enemy", action: "burn", duration: Number(m[1]) };
-
-    m = part.match(/(\d+)ブロックを得る/);
-    if (m) return { target: "player", action: "block", value: Number(m[1]) };
-
-    m = part.match(/(\d+)ターン凍結/);
-    if (m) return { target: "enemy", action: "freeze", duration: Number(m[1]) };
-
-    // 解析できなければ raw 情報を残す
-    return { raw: part };
-  });
-
-  return effects;
-}
-
-function prepareDeckEffects(deck) {
-  deck.forEach(card => {
-    card.effects = parseEffect(card.effect);
-  });
-}
-
-function playCard(card) {
-  const cost = Number(card.cost) || 0;
-  const power = Number(card.power) || 0;
-
-  if (mana < cost) {
-    alert(`マナが足りません！（必要: ${cost}）`);
+function initLive2D() {
+  const container = document.getElementById("live2d-app");
+  if (!container) {
+    console.error("live2d-app コンテナが見つかりません");
     return;
   }
-  mana -= cost;
+  container.innerHTML = ""; // 既存canvas消去
 
-  if (card.effects && Array.isArray(card.effects)) {
-    card.effects.forEach(effect => {
-      const value = Number(effect.value) || 0;
-
-      switch (effect.action) {
-        case 'damage':
-          enemy.takeDamage(value);
-          logAction(`プレイヤーは${card.name}を使い、敵に${value}ダメージ！`);
-          showAttackEffect(); // 🔥エフェクト表示
-          break;
-        case 'block':
-          player.gainBlock(value);
-          logAction(`プレイヤーは${card.name}を使い、${value}ブロックを得た！`);
-          break;
-        case 'heal':
-          player.heal(value);
-          logAction(`プレイヤーは${card.name}を使い、${value}回復した！`);
-          break;
-        case 'reflect':
-          // reflect は次ターンの敵の攻撃を跳ね返すなど、ここでフラグを立てて処理
-          player.reflectNextAttack = true;
-          logAction(`プレイヤーは${card.name}を使い、次の攻撃を反射する！`);
-          break;
-        case 'multiDamage':
-          for (let i = 0; i < effect.times; i++) {
-            enemy.takeDamage(value);
-            logAction(`プレイヤーは${card.name}で${i + 1}回目の攻撃！敵に${value}ダメージ！`);
-          }
-          break;
-        default:
-          logAction(`プレイヤーは${card.name}を使ったが、未対応の効果タイプ: ${effect.type}`);
-      }
-    });
-  } else {
-    logAction(`プレイヤーは${card.name}を使ったが、効果が設定されていません。`);
-  }
-
-  // プレイ後、捨て札へ
-  discardPile.push(card);
-
-  // 手札から除去
-  playerHand = playerHand.filter(c => c !== card);
-  // 表示も削除
-  updateUI();
-  checkWinLose();
-
-  if (mana <= 0 || !canPlayAnyCard()) {
-    logAction('もう出せるカードがないため、ターンを終了します。');
-    endTurn();
-  }
-}
-
-function endTurn() {
-  if (isPlayerTurn) {
-    isPlayerTurn = false;
-    enemy.attack(player);
-    logAction(`敵の攻撃！プレイヤーに${enemy.attackPower}ダメージ！`);
-    updateUI();
-    checkWinLose();
-
-    // プレイヤーのターン開始
-    turn++;
-    isPlayerTurn = true;
-    mana = maxMana; // マナ回復
-
-    // ■ 手札をリセット（使ったカードも使わなかったカードも捨てる）
-    // 手札をすべて捨て札に移動
-    discardPile.push(...playerHand);
-    playerHand = [];
-    document.getElementById('hand').innerHTML = '';
-
-    // ■ 5枚引く（山札から）
-    drawCards(5);
-
-    logAction(`プレイヤーのターン開始。マナが${mana}に回復しました。`);
-    updateUI();
-  }
-}
-
-
-function checkWinLose() {
-  if (enemy.hp <= 0) {
-    alert('勝利！敵を倒した！');
-    resetGame();
-  } else if (player.hp <= 0) {
-    alert('敗北…プレイヤーが倒れた。');
-    resetGame();
-  }
-}
-
-function logAction(text) {
-  const logElem = document.getElementById('log');
-  logElem.textContent += text + '\n';
-  logElem.scrollTop = logElem.scrollHeight;
-}
-
-function updateUI() {
-  document.getElementById('playerHP').textContent = `HP: ${player.hp}/${player.maxHP} ブロック: ${player.block}`;
-  document.getElementById('enemyHP').textContent = `敵HP: ${enemy.hp}/${enemy.maxHP}`;
-  document.getElementById('mana').textContent = `マナ: ${mana} / ${maxMana}`;
-}
-
-function resetGame() {
-  player.hp = player.maxHP;
-  player.block = 0;
-  enemy.hp = enemy.maxHP;
-  turn = 1;
-  isPlayerTurn = true;
-  document.getElementById('log').textContent = '';
-  updateUI();
-}
-
-function displayCardInHand(card) {
-  const handDiv = document.getElementById('hand');
-  const cardDiv = document.createElement('div');
-  cardDiv.className = 'card';
-  cardDiv.innerHTML = `
-    <img src="${card.image || 'https://via.placeholder.com/150'}" alt="${card.name}">
-    <strong>${card.name}</strong><br>
-    種類: ${card.type}<br>
-    効果: ${card.effect}<br>
-    レア: ${card.rarity}
-  `;
-  cardDiv.onclick = () => {
-    const cost = Number(card.cost) || 0;
-    if (mana < cost) {
-      alert(`マナが足りません！（必要: ${cost}）`);
-      return;
-    }
-    playCard(card);
-    // 使ったカードを手札から削除
-    playerHand = playerHand.filter(c => c !== card);
-    cardDiv.remove();
-  };
-  handDiv.appendChild(cardDiv);
-}
-
-function startBattle() {
-  // 初期化
-  resetGame();
-
-  // デッキからカード10枚をセット
-  playerDeck = shuffle([...deck]);
-  prepareDeckEffects(playerDeck);
-
-  // プレイヤー手札を空に
-  playerHand = [];
-
-  // カード表示用のhand要素をクリア
-  document.getElementById('hand').innerHTML = '';
-
-  // 手札に最初の5枚を配る（例）
-  drawCards(5);
-
-  // ログをクリア
-  document.getElementById('log').textContent = 'バトル開始！\n';
-
-  // UI更新
-  updateUI();
-  
-  // 「3枚のカードを取得」ボタンを非表示に
-  document.getElementById('get-cards-btn').style.display = 'none';
-  
-  // ボタンなど表示調整
-  document.getElementById('battle-button').style.display = 'none';
-  document.getElementById('deck-count').style.display = 'none';
-  document.getElementById('card-container').style.display = 'none';
-}
-
-function canPlayAnyCard() {
-  return playerHand.some(card => mana >= (Number(card.cost) || 0));
-}
-
-function shuffle(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-}
-
-function showAttackEffect() {
-  const effect = document.getElementById('attack-effect');
-  if (!effect) return;
-
-  effect.style.display = 'block';
-  effect.style.opacity = '1';
-
-  setTimeout(() => {
-    effect.style.transition = 'opacity 0.5s';
-    effect.style.opacity = '0';
-    setTimeout(() => {
-      effect.style.display = 'none';
-      effect.style.transition = '';
-    }, 500);
-  }, 500);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
   app = new PIXI.Application({
     width: 300,
     height: 500,
     transparent: true,
     premultipliedAlpha: false,
   });
-
-  const container = document.getElementById("live2d-app");
-  container.innerHTML = ""; // ここで過去のcanvasを消す
-  
-  if (!container) {
-    console.error("live2d-app コンテナが見つかりません");
-    return;
-  }
   container.appendChild(app.view);
 
-  // PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json")
-  //   .then(model => {
-  //     live2dModel = model;
+  PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json")
+    .then(model => {
+      live2dModel = model;
+      model.scale.set(0.3);
+      model.anchor.set(0.5, 0.5);
+      model.x = app.renderer.width / 2;
+      model.y = app.renderer.height / 2 + 20;
+      app.stage.addChild(model);
 
-  //     live2dModel.scale.set(0.06);
-  //     live2dModel.anchor.set(0.5, 0.5);
-  //     live2dModel.x = app.renderer.width / 2;
-  //     live2dModel.y = app.renderer.height / 2 + 20;
+      // モデル準備完了時にモーション名確認（デバッグ）
+      model.once("modelReady", () => {
+        if (model.internalModel && model.internalModel.motionGroups) {
+          console.log("モーショングループ一覧:", Object.keys(model.internalModel.motionGroups));
+        }
+      });
+    })
+    .catch(err => {
+      console.error("Live2Dモデルの読み込みに失敗:", err);
+    });
 
-  //     app.stage.addChild(live2dModel);
-  //     // ✅ モーショングループをログに出力
-  //     console.log("モーショングループ一覧:", Object.keys(model.internalModel.motionGroups));
-  //   })
-  //   .catch(err => {
-  //     console.error("Live2Dモデルの読み込みに失敗:", err);
-  //   });
-  const modelPath = "IceGirl_Live2d/IceGirl.model3.json";
-  PIXI.live2d.Live2DModel.from(modelPath).then((model) => {
-  live2dModel = model;
-
-  app.stage.addChild(model);
-
-  // Live2Dモデルの準備完了後にモーション一覧を出力
-  model.once("modelReady", () => {
-    if (model.internalModel && model.internalModel.motionGroups) {
-      console.log("モーショングループ一覧:", Object.keys(model.internalModel.motionGroups));
-    } else {
-      console.warn("motionGroups がまだ取得できない状態です。");
-    }
-  });
-
-  // モデルの位置やスケーリングなど、他の初期化処理もここで書く
-  model.x = app.renderer.width / 2;
-  model.y = app.renderer.height / 2;
-  model.scale.set(0.3);
-
-  }).catch((e) => {
-    console.error("Live2Dモデルの読み込みに失敗:", e);
-  });
-
-  // クリックイベントでモーション再生
+  // クリックでTapBodyモーション再生（pointer-events:noneなので機能しないが念のため）
   app.view.addEventListener("click", () => {
-    console.log("Clicked!");
     playMotion("TapBody", 2);
   });
-});
+}
 
-// モーション再生関数はグローバルに置く
 function playMotion(group, index) {
   if (!live2dModel || !live2dModel.internalModel.motionManager) {
-    console.warn("モデルやモーションマネージャーが未定義");
+    console.warn("Live2Dモデルまたはモーションマネージャー未定義");
     return;
   }
-
   const motions = live2dModel.internalModel.motionGroups[group];
   if (!motions || !motions[index]) {
-    console.warn("モーショングループが存在しない:", group, index);
+    console.warn(`モーショングループ不存在: ${group}[${index}]`);
     return;
   }
-
   live2dModel.internalModel.motionManager.startMotion(group, index, 2);
 }
 
-function initLive2D() {
-  app = new PIXI.Application({
-    width: 300,
-    height: 500,
-    transparent: true,
-    premultipliedAlpha: false,
-  });
+// --- ゲームロジック ---
 
-  const container = document.getElementById("live2d-app");
-  if (!container) {
-    console.error("live2d-app コンテナが見つかりません");
-    return;
+// グローバル状態
+let playerHP = 30;
+let playerMaxHP = 30;
+let playerBlock = 0;
+let playerMana = 3;
+let playerMaxMana = 3;
+
+let enemyHP = 20;
+let enemyMaxHP = 20;
+
+let hand = [];  // 手札
+let deck = [];  // デッキはHTML側で操作されるためここは空でOK（必要あれば同期可能）
+
+// UI参照まとめ
+const deckCountEl = document.getElementById("deck-count");
+const cardContainerEl = document.getElementById("card-container");
+const messageEl = document.getElementById("message");
+const playerHPEl = document.getElementById("playerHP");
+const manaEl = document.getElementById("mana");
+const enemyHPEl = document.getElementById("enemyHP");
+const logEl = document.getElementById("log");
+const handEl = document.getElementById("hand");
+const attackEffectEl = document.getElementById("attack-effect");
+const battleBtn = document.getElementById("battle-button");
+const getCardsBtn = document.getElementById("get-cards-btn");
+
+// カードの効果の簡易処理（実際はもっと細分化可）
+function applyCardEffect(card) {
+  const effect = card.effect;
+  log(`カード使用: ${card.name} - 効果: ${effect}`);
+
+  if (/敵に(\d+)ダメージ/.test(effect)) {
+    // 敵へのダメージ
+    const damage = parseInt(RegExp.$1, 10);
+    damageEnemy(damage);
+  } else if (/味方を(\d+)回復/.test(effect)) {
+    // プレイヤー回復
+    const heal = parseInt(RegExp.$1, 10);
+    healPlayer(heal);
+  } else if (/(\d+)ブロック/.test(effect)) {
+    const block = parseInt(RegExp.$1, 10);
+    playerBlock += block;
+    log(`プレイヤーは${block}のブロックを得た`);
+  } else if (/反射/.test(effect)) {
+    log("次の攻撃を反射する効果発動（未実装）");
+    // 反射効果は未実装（拡張可能）
+  } else {
+    log("効果が未定義または未対応");
   }
+  updateUI();
+}
 
-  container.appendChild(app.view);
+function damageEnemy(dmg) {
+  enemyHP -= dmg;
+  if (enemyHP < 0) enemyHP = 0;
+  log(`敵に${dmg}ダメージ！ 残りHP: ${enemyHP}`);
+  showAttackEffect();
+  updateUI();
+  if (enemyHP === 0) {
+    log("敵を倒した！バトル勝利！");
+    battleBtn.style.display = "none";
+    getCardsBtn.style.display = "inline-block";
+  }
+}
 
-  PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
-    live2dModel = model;
-    model.scale.set(0.07);
-    model.anchor.set(0.5, 0.5);
-    model.x = app.renderer.width / 2;
-    model.y = app.renderer.height / 2 + 20;
-    app.stage.addChild(model);
-  }).catch(err => {
-    console.error("Live2Dモデルの読み込みに失敗:", err);
+function healPlayer(amount) {
+  playerHP += amount;
+  if (playerHP > playerMaxHP) playerHP = playerMaxHP;
+  log(`味方を${amount}回復。現在HP: ${playerHP}`);
+  updateUI();
+}
+
+function log(text) {
+  logEl.textContent += text + "\n";
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function showAttackEffect() {
+  attackEffectEl.style.display = "block";
+  if (live2dModel) {
+    playMotion("Attack", 0); // 攻撃モーション（あれば）
+  }
+  setTimeout(() => {
+    attackEffectEl.style.display = "none";
+  }, 500);
+}
+
+function updateUI() {
+  playerHPEl.textContent = `HP: ${playerHP} / ${playerMaxHP} ブロック: ${playerBlock}`;
+  manaEl.textContent = `マナ: ${playerMana} / ${playerMaxMana}`;
+  enemyHPEl.textContent = `敵HP: ${enemyHP} / ${enemyMaxHP}`;
+  updateDeckCount();
+  renderHand();
+}
+
+function updateDeckCount() {
+  deckCountEl.textContent = `現在のデッキ枚数: ${deck.length} / 10`;
+  if (deck.length === 10) {
+    battleBtn.style.display = "inline-block";
+    getCardsBtn.style.display = "none";
+  } else {
+    battleBtn.style.display = "none";
+    getCardsBtn.style.display = "inline-block";
+  }
+}
+
+function renderHand() {
+  handEl.innerHTML = "";
+  hand.forEach((card, idx) => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.style.cursor = playerMana >= parseInt(card.cost, 10) ? "pointer" : "not-allowed";
+    div.innerHTML = `
+      <img src="${card.image || "https://via.placeholder.com/150"}" alt="${card.name}" style="width: 100px;">
+      <strong>${card.name}</strong><br>
+      コスト: ${card.cost}<br>
+      効果: ${card.effect}
+    `;
+    div.onclick = () => {
+      if (playerMana < parseInt(card.cost, 10)) {
+        log("マナ不足でカードを使えません。");
+        return;
+      }
+      useCard(idx);
+    };
+    handEl.appendChild(div);
   });
 }
 
-document.addEventListener("DOMContentLoaded", initLive2D);
+function useCard(handIndex) {
+  const card = hand[handIndex];
+  if (!card) return;
+  const cost = parseInt(card.cost, 10);
+  if (playerMana < cost) {
+    log("マナ不足です");
+    return;
+  }
+  playerMana -= cost;
+  applyCardEffect(card);
 
+  // 手札からカードを消す
+  hand.splice(handIndex, 1);
+  drawCard(); // 1枚補充
+  updateUI();
+}
+
+// デッキからランダムに手札に補充（10枚限定ゲーム想定）
+function drawCard() {
+  if (hand.length >= 5) return; // 最大5枚まで
+  if (deck.length === 0) return;
+
+  // ランダムでデッキから1枚取り出す
+  const index = Math.floor(Math.random() * deck.length);
+  const card = deck[index];
+  hand.push(card);
+  updateUI();
+}
+
+// バトル開始時処理
+function startBattle() {
+  if (deck.length < 10) {
+    alert("デッキが10枚になるまでカードを追加してください");
+    return;
+  }
+  // 初期状態リセット
+  playerHP = playerMaxHP;
+  playerBlock = 0;
+  playerMana = playerMaxMana;
+  enemyHP = enemyMaxHP;
+  hand = [];
+  logEl.textContent = "";
+  updateUI();
+
+  // 初手に5枚引く
+  for (let i = 0; i < 5; i++) drawCard();
+
+  log("バトル開始！");
+}
+
+// 初期化
+document.addEventListener("DOMContentLoaded", () => {
+  initLive2D();
+  updateUI();
+});
