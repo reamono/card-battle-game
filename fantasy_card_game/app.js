@@ -78,7 +78,10 @@
 
   // --- バトル開始ダミー ---
   function startBattle() {
-    alert("バトル開始！(実装はここに)");
+    playerMana = maxMana;
+    playerHP = 20;
+    enemyHP = 20;
+    updateStatusDisplay();
   }
 
   // --- カードプレイ時の処理 ---
