@@ -353,6 +353,8 @@ document.addEventListener("DOMContentLoaded", () => {
       live2dModel.y = app.renderer.height / 2 + 20;
 
       app.stage.addChild(live2dModel);
+      // ✅ モーショングループをログに出力
+      console.log("モーショングループ一覧:", Object.keys(model.internalModel.motionGroups));
     })
     .catch(err => {
       console.error("Live2Dモデルの読み込みに失敗:", err);
