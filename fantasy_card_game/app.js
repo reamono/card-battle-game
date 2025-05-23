@@ -6,6 +6,10 @@
   // ゲーム関連変数
   let deck = [];
   let live2dApp, live2dModel;
+  let playerMana = 3;
+  let maxMana = 3;
+  let enemyHP = 20;
+  let playerHP = 20;
 
   // DOM要素
   const getCardsBtn = document.getElementById("get-cards-btn");
@@ -75,6 +79,57 @@
   // --- バトル開始ダミー ---
   function startBattle() {
     alert("バトル開始！(実装はここに)");
+  }
+
+  // --- カードプレイ時の処理 ---
+  function playCard(card) {
+    if (card.cost > playerMana) {
+      alert("マナが足りません！");
+      return;
+    }
+    playerMana -= card.cost;
+    applyEffect(card.effect);
+    updateStatusDisplay();
+  
+    if (playerMana <= 0) {
+      endTurn();
+    }
+  }
+
+  // --- カード効果の適用関数 ---
+  function applyEffect(effectString) {
+    const [effectType, valueStr] = effectString.split(":");
+    const value = parseInt(valueStr);
+  
+    switch (effectType) {
+      case "attack":
+        enemyHP -= value;
+        console.log(`敵に${value}のダメージ。残りHP: ${enemyHP}`);
+        break;
+      case "heal":
+        playerHP += value;
+        console.log(`プレイヤーのHPが${value}回復。現在HP: ${playerHP}`);
+        break;
+      case "draw":
+        // カードドロー処理（必要に応じて実装）
+        break;
+      default:
+        console.log("未知の効果:", effectString);
+    }
+  }
+
+  function endTurn() {
+    console.log("ターン終了。マナを回復し、次のターンへ");
+    playerMana = maxMana;
+    updateStatusDisplay();
+    // 敵のターン処理があればここに追加
+  }
+
+  // --- マナとHPの表示更新関数 ---
+  function updateStatusDisplay() {
+    document.getElementById("manaDisplay").textContent = `マナ: ${playerMana}/${maxMana}`;
+    document.getElementById("playerHP").textContent = `プレイヤーHP: ${playerHP}`;
+    document.getElementById("enemyHP").textContent = `敵HP: ${enemyHP}`;
   }
 
   // Live2D初期化
