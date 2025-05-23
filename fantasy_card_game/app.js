@@ -51,8 +51,8 @@ let playerHand = []; //手札
 let discardPile = []; //山札
 let mana = 3;          // 現在のマナ
 const maxMana = 3;     // 最大マナ
-//let app; // グローバルに定義
-//let live2dModel;
+let app; // グローバルに定義
+let live2dModel;
 
 function drawCards(n) {
   for (let i = 0; i < n; i++) {
@@ -405,3 +405,34 @@ function playMotion(group, index) {
 
   live2dModel.internalModel.motionManager.startMotion(group, index, 2);
 }
+
+function initLive2D() {
+  app = new PIXI.Application({
+    width: 300,
+    height: 500,
+    transparent: true,
+    premultipliedAlpha: false,
+  });
+
+  const container = document.getElementById("live2d-app");
+  if (!container) {
+    console.error("live2d-app コンテナが見つかりません");
+    return;
+  }
+
+  container.appendChild(app.view);
+
+  PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
+    live2dModel = model;
+    model.scale.set(0.07);
+    model.anchor.set(0.5, 0.5);
+    model.x = app.renderer.width / 2;
+    model.y = app.renderer.height / 2 + 20;
+    app.stage.addChild(model);
+  }).catch(err => {
+    console.error("Live2Dモデルの読み込みに失敗:", err);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", initLive2D);
+
