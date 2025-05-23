@@ -359,6 +359,7 @@ document.addEventListener("DOMContentLoaded", () => {
   //   .catch(err => {
   //     console.error("Live2Dモデルの読み込みに失敗:", err);
   //   });
+  const modelPath = "IceGirl_Live2d/IceGirl.model3.json";
   PIXI.live2d.Live2DModel.from(modelPath).then((model) => {
   live2dModel = model;
 
