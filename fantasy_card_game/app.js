@@ -181,6 +181,9 @@
     battleBtn.addEventListener("click", startBattle);
     updateDeckCount();
     initLive2D();
+    cardElement.addEventListener("click", () => {
+    playCard(card);
+    });
   });
 
   // グローバルに必要な関数を展開
