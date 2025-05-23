@@ -105,7 +105,10 @@
           "IceGirl_Live2d/MeiYan.motion3.json"
         ];
         console.log("使えるモーション:", availableMotions);
-        
+
+        // 自動揺れなどを停止（モーション確認用）
+        model.internalModel.motionManager.stopAllMotions();
+        model.internalModel.parameterManager.stopAllParameters();
         // 例：最初のモーションを再生
         model.motion(availableMotions[0])
           .then(() => console.log("モーション再生完了"))
