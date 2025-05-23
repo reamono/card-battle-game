@@ -6,22 +6,20 @@
   <link rel="stylesheet" href="style.css" />
   <!-- Live2D Cubism Core SDK -->
   <script src="libs/live2dcubismcore.min.js"></script>
-  <!-- 先にlive2d.min.jsを読み込む（Cubism 2 Runtime） -->
   <script src="libs/live2d.min.js"></script>
   <!-- Pixi.js -->
   <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.8/dist/browser/pixi.min.js"></script>
   <!-- pixi-live2d-display UMD版 -->
   <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/index.min.js"></script>
-  
+
   <style>
-    /* 画面右下にLive2Dモデルを配置 */
     #live2d-container {
       position: fixed;
       bottom: 0;
       right: 0;
       width: 300px;
       height: 500px;
-      pointer-events: none; /* モデルのクリックを透過 */
+      pointer-events: none;
       z-index: 1000;
     }
   </style>
@@ -29,9 +27,9 @@
 <body>
   <h1>初期デッキ構築</h1>
   <p id="deck-count">現在のデッキ枚数: 0 / 10</p>
-  <button id="get-cards-btn" onclick="getCards()">3枚のカードを取得</button>
+  <button id="get-cards-btn">3枚のカードを取得</button>
   <div id="card-container" class="card-container"></div>
-  <button id="battle-button" onclick="startBattle()" style="display:none;">バトル開始！</button>
+  <button id="battle-button" style="display:none;">バトル開始！</button>
   <p id="message"></p>
   <div id="playerHP">HP: 30/30 ブロック: 0</div>
   <div id="mana">マナ: 3 / 3</div>
@@ -39,12 +37,10 @@
   <pre id="log" style="height: 150px; overflow-y: auto; border: 1px solid #aaa;"></pre>
   <div id="hand"></div>
 
-  <!-- ✅ Live2Dモデル表示用コンテナ -->
   <div id="live2d-container">
     <div id="live2d-app"></div>
   </div>
 
-  <!-- ✅ 攻撃時のエフェクト実装 -->
   <div id="attack-effect" style="
     position: fixed;
     top: 100px;
@@ -54,106 +50,10 @@
     display: none;
     z-index: 999;
     pointer-events: none;">
-    <img src="https://raw.githubusercontent.com/reamono/card-battle-game/main/fantasy_card_game/images/slashing-effect.gif" 
-         alt="炎" 
-         style="width: 100%; height: 100%;">
+    <img src="images/slashing-effect.gif" alt="炎" style="width: 100%; height: 100%;">
   </div>
-  
-  <script>
-    const API_BASE = "https://script.google.com/macros/s/AKfycbwmrF3D7q_pO8up68oFgOhKqyx6PbbVs4BOYv17atgBWWh1i_Q6-IKsEmq0mbNSnOVD/exec";
-    let deck = [];
 
-    function getCards() {
-      if (deck.length >= 10) return;
-      fetch(`${API_BASE}?action=get`)
-        .then(res => res.json())
-        .then(data => {
-          const selected = [];
-          while (selected.length < 3 && selected.length < data.length) {
-            const randomIndex = Math.floor(Math.random() * data.length);
-            const card = data[randomIndex];
-            if (!selected.includes(card)) selected.push(card);
-          }
-
-          const container = document.getElementById("card-container");
-          container.innerHTML = "";
-
-          selected.forEach(card => {
-            const div = document.createElement("div");
-            div.className = "card";
-            div.innerHTML = `
-              <img src="${card.image || 'https://via.placeholder.com/150'}" alt="${card.name}">
-              <strong>${card.name}</strong><br>
-              種類: ${card.type}<br>
-              効果: ${card.effect}<br>
-              レア: ${card.rarity}
-            `;
-            div.onclick = () => addCard(card);
-            container.appendChild(div);
-          });
-        });
-    }
-
-    function addCard(card) {
-      if (deck.length >= 10) return;
-      deck.push(card);
-      document.getElementById("message").innerText = `${card.name} をデッキに追加しました！`;
-      updateDeckCount();
-
-      document.getElementById("card-container").innerHTML = "";
-      if (deck.length < 10) {
-        setTimeout(() => getCards(), 500);
-      }
-    }
-
-    function updateDeckCount() {
-      const countText = `現在のデッキ枚数: ${deck.length} / 10`;
-      document.getElementById("deck-count").innerText = countText;
-
-      const battleBtn = document.getElementById("battle-button");
-      const getCardsBtn = document.getElementById("get-cards-btn");
-
-      if (deck.length === 10) {
-        battleBtn.style.display = "inline-block";
-        getCardsBtn.style.display = "none";
-      } else {
-        battleBtn.style.display = "none";
-        getCardsBtn.style.display = "inline-block";
-      }
-    }
-    //let app;      // グローバルで保持
-    //let live2dModel;
-    
-    // document.addEventListener("DOMContentLoaded", () => {
-    //   app = new PIXI.Application({
-    //     width: 300,
-    //     height: 500,
-    //     transparent: true,
-    //     premultipliedAlpha: false,
-    //   });
-    
-    //   const container = document.getElementById("live2d-app");
-    //   if (!container) {
-    //     console.error("live2d-app コンテナが見つかりません");
-    //     return;
-    //   }
-    
-    //   container.appendChild(app.view);
-    
-    //   PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json").then(model => {
-    //     live2dModel = model;
-    //     model.scale.set(0.07); // 2Dモデルのサイズ
-    //     model.anchor.set(0.5, 0.5);
-    //     model.x = app.renderer.width / 2;
-    //     model.y = app.renderer.height / 2 + 20;
-    //     app.stage.addChild(model);
-    //   }).catch(err => {
-    //     console.error("Live2Dモデルの読み込みに失敗:", err);
-    //   });
-    // });
-  </script>
-
-  <!-- カードゲームロジック本体 -->
+  <!-- app.js を最下部で読み込み -->
   <script src="app.js"></script>
 </body>
 </html>
