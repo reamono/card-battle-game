@@ -97,6 +97,7 @@
         model.x = live2dApp.renderer.width / 2;
         model.y = live2dApp.renderer.height / 2 + 20;
         live2dApp.stage.addChild(model);
+        
         // ここにモーション一覧を定義してconsole.logで確認
         const availableMotions = [
           "IceGirl_Live2d/DaiJi.motion3.json",
@@ -104,6 +105,12 @@
           "IceGirl_Live2d/MeiYan.motion3.json"
         ];
         console.log("使えるモーション:", availableMotions);
+        
+        // 例：最初のモーションを再生
+        model.motion(availableMotions[0])
+          .then(() => console.log("モーション再生完了"))
+          .catch(console.error);
+        
       })
       .catch(err => {
         console.error("Live2Dモデルの読み込みに失敗:", err);
