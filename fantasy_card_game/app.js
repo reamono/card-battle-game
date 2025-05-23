@@ -109,9 +109,9 @@
         // 自動揺れなどを停止（モーション確認用）
         model.internalModel.motionManager.stopAllMotions();
         // 例：最初のモーションを再生
-        model.motion(availableMotions[2])
-          .then(() => console.log("モーション再生完了"))
-          .catch(console.error);
+        // model.motion(availableMotions[2])
+        //   .then(() => console.log("モーション再生完了"))
+        //   .catch(console.error);
         
       })
       .catch(err => {
