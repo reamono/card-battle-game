@@ -14,6 +14,16 @@ let enemy = {
   attack: 4,
 };
 let floor = 1;
+let playerStatus = {
+  healingOverTime: 0,
+  shieldTurns: 0,
+  preventEnemyAction: false,
+  reflectNext: false
+};
+
+let enemyStatus = {
+  stunned: false
+};
 
 // JSONデータを取得して初期化
 document.addEventListener("DOMContentLoaded", () => {
@@ -123,24 +133,101 @@ function drawHand() {
   });
 }
 
+//カード処理
 function playCard(card) {
   const log = document.getElementById("log");
   log.innerHTML += `<p>${card.name} を使った！</p>`;
-
   player.mana -= card.cost;
 
-  switch (card.type) {
-    case "攻撃":
+  switch (card.name) {
+    case "ドレイン":
       enemy.hp -= card.power;
-      log.innerHTML += `<p>敵に${card.power}ダメージ！</p>`;
+      player.hp += 2;
+      log.innerHTML += `<p>敵に${card.power}ダメージ、自分を2回復！</p>`;
       break;
-    case "回復":
-      player.hp += card.power;
-      log.innerHTML += `<p>HPを${card.power}回復！</p>`;
+    case "フレアストライク":
+      enemy.hp -= card.power;
+      log.innerHTML += `<p>敵に${card.power}ダメージ！次のターン使用不可（未実装）</p>`;
       break;
-    case "防御":
+    case "マナブースト":
+      player.mana += 2;
+      log.innerHTML += `<p>マナが2回復！</p>`;
+      break;
+    case "パワーアップ":
+      player.nextAttackBoost = 3;
+      log.innerHTML += `<p>次の攻撃ダメージが+3される！</p>`;
+      break;
+    case "ブラッドソード":
+      enemy.hp -= card.power;
+      player.hp -= 1;
+      log.innerHTML += `<p>敵に${card.power}ダメージ！自分も1ダメージ</p>`;
+      break;
+    case "シールドチャージ":
       player.shield += card.power;
-      log.innerHTML += `<p>シールド${card.power}付与！</p>`;
+      player.mana += 1;
+      log.innerHTML += `<p>シールド${card.power}とマナ1を獲得！</p>`;
+      break;
+    case "バリア":
+      playerStatus.shieldTurns = 3;
+      player.shield += 2;
+      log.innerHTML += `<p>3ターン持続のシールド2を獲得！</p>`;
+      break;
+    case "アンチマジック":
+      playerStatus.preventEnemyAction = true;
+      log.innerHTML += `<p>次の敵の行動を封じた！</p>`;
+      break;
+    case "雷鳴":
+      enemy.hp -= card.power;
+      enemyStatus.stunned = true;
+      log.innerHTML += `<p>敵に${card.power}ダメージ＆気絶！</p>`;
+      break;
+    case "シールドウォール":
+      playerStatus.shieldTurns = 1;
+      log.innerHTML += `<p>1ターンの全ダメージ無効化！</p>`;
+      break;
+    case "回復の祈り":
+      playerStatus.healingOverTime = 3;
+      log.innerHTML += `<p>毎ターン3回復（3ターン継続）！</p>`;
+      break;
+    case "スモークボム":
+      playerStatus.preventEnemyAction = true;
+      log.innerHTML += `<p>敵の攻撃を無効化！</p>`;
+      break;
+    case "シャドウスラッシュ":
+      enemy.hp -= card.power;
+      log.innerHTML += `<p>敵に${card.power}ダメージ＋命中率低下（演出）！</p>`;
+      break;
+    case "オーラヒール":
+      player.hp += 2;
+      player.mana += 1;
+      log.innerHTML += `<p>HP2回復＆マナ1回復！</p>`;
+      break;
+    case "反射の鏡":
+      playerStatus.reflectNext = true;
+      log.innerHTML += `<p>次の敵の攻撃を反射！</p>`;
+      break;
+    case "バーストブレード":
+      const burst = player.mana + card.power;
+      enemy.hp -= burst;
+      player.mana = 0;
+      log.innerHTML += `<p>全マナ消費して${burst}ダメージ！</p>`;
+      break;
+    default:
+      if (card.type === "攻撃") {
+        let dmg = card.power;
+        if (player.nextAttackBoost) {
+          dmg += player.nextAttackBoost;
+          player.nextAttackBoost = 0;
+        }
+        enemy.hp -= dmg;
+        log.innerHTML += `<p>敵に${dmg}ダメージ！</p>`;
+      } else if (card.type === "回復") {
+        player.hp += card.power;
+        log.innerHTML += `<p>HPを${card.power}回復！</p>`;
+      } else if (card.type === "防御") {
+        player.shield += card.power;
+        log.innerHTML += `<p>シールド${card.power}付与！</p>`;
+      }
       break;
   }
 
