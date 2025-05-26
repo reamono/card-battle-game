@@ -64,19 +64,6 @@ function getRandomCards(n, pool) {
   return shuffled.slice(0, n);
 }
 
-let player = {
-  hp: 30,
-  mana: 3,
-  shield: 0,
-};
-
-let enemy = {
-  hp: 20,
-  attack: 4,
-};
-
-let floor = 1;
-
 function startBattlePhase() {
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
