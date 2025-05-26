@@ -135,48 +135,48 @@
     document.getElementById("enemyHP").textContent = `敵HP: ${enemyHP}`;
   }
 
-  // Live2D初期化
-  function initLive2D() {
-    live2dApp = new PIXI.Application({
-      width: 300,
-      height: 500,
-      transparent: true,
-      premultipliedAlpha: false,
-    });
+  // // Live2D初期化
+  // function initLive2D() {
+  //   live2dApp = new PIXI.Application({
+  //     width: 300,
+  //     height: 500,
+  //     transparent: true,
+  //     premultipliedAlpha: false,
+  //   });
 
-    const live2dContainer = document.getElementById("live2d-app");
-    live2dContainer.appendChild(live2dApp.view);
+  //   const live2dContainer = document.getElementById("live2d-app");
+  //   live2dContainer.appendChild(live2dApp.view);
 
-    PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json")
-      .then(model => {
-        live2dModel = model;
-        model.scale.set(0.07);
-        model.anchor.set(0.5, 0.5);
-        model.x = live2dApp.renderer.width / 2;
-        model.y = live2dApp.renderer.height / 2 + 20;
-        live2dApp.stage.addChild(model);
+  //   PIXI.live2d.Live2DModel.from("IceGirl_Live2d/IceGirl.model3.json")
+  //     .then(model => {
+  //       live2dModel = model;
+  //       model.scale.set(0.07);
+  //       model.anchor.set(0.5, 0.5);
+  //       model.x = live2dApp.renderer.width / 2;
+  //       model.y = live2dApp.renderer.height / 2 + 20;
+  //       live2dApp.stage.addChild(model);
         
-        // ここにモーション一覧を定義してconsole.logで確認
-        // const availableMotions = [
-        //   "IceGirl_Live2d/DaiJi.motion3.json",
-        //   "IceGirl_Live2d/HuiShou.motion3.json",
-        //   "IceGirl_Live2d/MeiYan.motion3.json"
-        // ];
-        // console.log("使えるモーション:", availableMotions);
+  //       // ここにモーション一覧を定義してconsole.logで確認
+  //       // const availableMotions = [
+  //       //   "IceGirl_Live2d/DaiJi.motion3.json",
+  //       //   "IceGirl_Live2d/HuiShou.motion3.json",
+  //       //   "IceGirl_Live2d/MeiYan.motion3.json"
+  //       // ];
+  //       // console.log("使えるモーション:", availableMotions);
 
-        // 自動揺れなどを停止（モーション確認用→使えなかった）
-        //model.internalModel.motionManager.stopAllMotions();
+  //       // 自動揺れなどを停止（モーション確認用→使えなかった）
+  //       //model.internalModel.motionManager.stopAllMotions();
         
-        // 例：最初のモーションを再生
-        // model.motion(availableMotions[2])
-        //   .then(() => console.log("モーション再生完了"))
-        //   .catch(console.error);
+  //       // 例：最初のモーションを再生
+  //       // model.motion(availableMotions[2])
+  //       //   .then(() => console.log("モーション再生完了"))
+  //       //   .catch(console.error);
         
-      })
-      .catch(err => {
-        console.error("Live2Dモデルの読み込みに失敗:", err);
-      });
-  }
+  //     })
+  //     .catch(err => {
+  //       console.error("Live2Dモデルの読み込みに失敗:", err);
+  //     });
+  // }
 
   // ページ読み込み完了時に処理をセット
   window.addEventListener("DOMContentLoaded", () => {
