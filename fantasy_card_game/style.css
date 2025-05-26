@@ -24,3 +24,11 @@ body {
   border: 2px solid #007bff;
   background: #e0f0ff;
 }
+
+body {
+  background-image: url("background.webp");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: white;
+}
