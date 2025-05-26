@@ -164,8 +164,15 @@ function playCard(card) {
       break;
     case "ブラッドソード":
       enemy.hp -= card.power;
-      player.hp -= 1;
-      log.innerHTML += `<p>敵に${card.power}ダメージ！自分も1ダメージ</p>`;
+      let selfDamage = 1;
+      if (player.shield > 0) {
+        const blocked = Math.min(player.shield, selfDamage);
+        selfDamage -= blocked;
+        player.shield -= blocked;
+        log.innerHTML += `<p>自分のシールドで${blocked}軽減！</p>`;
+      }
+      player.hp -= selfDamage;
+      log.innerHTML += `<p>敵に${card.power}ダメージ！自分に${selfDamage}ダメージ</p>`;
       break;
     case "シールドチャージ":
       player.shield += card.power;
