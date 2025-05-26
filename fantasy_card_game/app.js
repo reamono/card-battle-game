@@ -119,22 +119,29 @@ function drawHand() {
   handContainer.innerHTML = "";
   currentHand = [];
 
+  // 1. 山札も捨て札も空なら終了
+  if (playerDeck.length === 0 && discardPile.length === 0) {
+    addLogEntry("カードが尽きてこれ以上引けません！");
+    return;
+  }
+
   let drawCount = 5;
-  // 1. 山札から可能な限り引く
+
+  // 2. 山札から引く
   const drawn = playerDeck.splice(0, drawCount);
   currentHand = [...drawn];
   drawCount -= drawn.length;
 
-  // 2. 足りなければ捨て札を戻してシャッフル
+  // 3. 足りない分だけ捨て札から補充
   if (drawCount > 0 && discardPile.length > 0) {
-    playerDeck = [...shuffle(discardPile)];
+    playerDeck = shuffle(discardPile);
     discardPile = [];
 
     const moreDrawn = playerDeck.splice(0, drawCount);
     currentHand = [...currentHand, ...moreDrawn];
   }
 
-  // 3. 表示処理
+  // 4. 手札を表示
   currentHand.forEach(card => {
     const cardElem = document.createElement("div");
     const rarityClass = getRarityClass(card.rarity);
