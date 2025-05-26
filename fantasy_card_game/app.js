@@ -243,20 +243,70 @@ function updateBattleStatus() {
   document.getElementById("floor").textContent = floor;
 }
 
+function processTurnEffects() {
+  const log = document.getElementById("log");
+
+  // 持続回復処理
+  if (playerStatus.healingOverTime > 0) {
+    player.hp += 3;
+    playerStatus.healingOverTime--;
+    log.innerHTML += `<p>持続回復でHPが3回復！</p>`;
+  }
+
+  // バリア（全ダメージ無効）のターン数減少
+  if (playerStatus.shieldTurns > 0) {
+    playerStatus.shieldTurns--;
+    if (playerStatus.shieldTurns === 0) {
+      log.innerHTML += `<p>バリアの効果が切れた。</p>`;
+    }
+  }
+
+  // 敵の気絶解除
+  if (enemyStatus.stunned) {
+    enemyStatus.stunned = false;
+    log.innerHTML += `<p>敵は気絶から回復した。</p>`;
+  }
+
+  // 敵行動無効フラグ解除（1回きり）
+  if (playerStatus.preventEnemyAction) {
+    playerStatus.preventEnemyAction = false;
+  }
+
+  // 反射状態も1回のみで解除（敵行動時に使われる）
+}
+
+// === 敵ターンの処理 ===
 function enemyTurn() {
   const log = document.getElementById("log");
   log.innerHTML += `<p>敵のターン！</p>`;
 
-  let damage = enemy.attack;
-  if (player.shield > 0) {
-    const blocked = Math.min(player.shield, damage);
-    damage -= blocked;
-    player.shield -= blocked;
-    log.innerHTML += `<p>シールドで${blocked}軽減！</p>`;
-  }
+  processTurnEffects();
 
-  player.hp -= damage;
-  log.innerHTML += `<p>敵の攻撃！${damage}ダメージを受けた！</p>`;
+  if (playerStatus.preventEnemyAction) {
+    log.innerHTML += `<p>敵の行動は封じられている！</p>`;
+  } else if (enemyStatus.stunned) {
+    log.innerHTML += `<p>敵は気絶していて行動できない！</p>`;
+  } else {
+    let damage = enemy.attack;
+
+    if (playerStatus.shieldTurns > 0) {
+      damage = 0;
+      log.innerHTML += `<p>バリアでダメージを無効化！</p>`;
+    } else if (playerStatus.reflectNext) {
+      log.innerHTML += `<p>敵の攻撃を反射した！敵に${damage}ダメージ！</p>`;
+      enemy.hp -= damage;
+      playerStatus.reflectNext = false;
+    } else {
+      if (player.shield > 0) {
+        const blocked = Math.min(player.shield, damage);
+        damage -= blocked;
+        player.shield -= blocked;
+        log.innerHTML += `<p>シールドで${blocked}軽減！</p>`;
+      }
+      player.hp -= damage;
+      log.innerHTML += `<p>敵の攻撃！${damage}ダメージを受けた！</p>`;
+    }
+  }
 
   player.mana = 3; // 次ターン回復
   updateBattleStatus();
