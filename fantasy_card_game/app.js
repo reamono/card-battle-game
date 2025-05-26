@@ -119,25 +119,26 @@ function drawHand() {
   handContainer.innerHTML = "";
   currentHand = [];
 
-    // 山札が足りない場合は捨て札を戻す
-  if (playerDeck.length < 5) {
-    playerDeck = [...playerDeck, ...discardPile];
+  let drawCount = 5;
+  // 1. 山札から可能な限り引く
+  const drawn = playerDeck.splice(0, drawCount);
+  currentHand = [...drawn];
+  drawCount -= drawn.length;
+
+  // 2. 足りなければ捨て札を戻してシャッフル
+  if (drawCount > 0 && discardPile.length > 0) {
+    playerDeck = [...shuffle(discardPile)];
     discardPile = [];
+
+    const moreDrawn = playerDeck.splice(0, drawCount);
+    currentHand = [...currentHand, ...moreDrawn];
   }
 
-  const hand = getRandomCards(5, playerDeck); // 10枚から5枚引く
-  currentHand = hand;
-
-    // 山札から取り除く
-  hand.forEach(c => {
-    const index = playerDeck.findIndex(d => d.id === c.id);
-    if (index !== -1) playerDeck.splice(index, 1);
-  });
-  
-  hand.forEach(card => {
+  // 3. 表示処理
+  currentHand.forEach(card => {
     const cardElem = document.createElement("div");
-    const rarityClass = getRarityClass(card.rarity); // レアリティに応じたクラスを取得
-    cardElem.className = `card ${rarityClass}`; // クラスに追加
+    const rarityClass = getRarityClass(card.rarity);
+    cardElem.className = `card ${rarityClass}`;
     cardElem.innerHTML = `
       <h3>${card.name}</h3>
       <p>${card.effect}</p>
@@ -147,18 +148,24 @@ function drawHand() {
     cardElem.addEventListener("click", () => {
       if (player.mana >= card.cost) {
         playCard(card);
-    
-        // カードを使用済みにする処理
         discardPile.push(card);
-        currentHand = currentHand.filter(c => c !== card); // 手札から削除
-    
-        cardElem.remove(); // 表示からも削除
-        updateDiscardPileDisplay(); // 捨て札表示更新
+        currentHand = currentHand.filter(c => c !== card);
+        cardElem.remove();
+        updateDiscardPileDisplay();
       }
     });
-
     handContainer.appendChild(cardElem);
   });
+}
+
+// シャッフル関数
+function shuffle(array) {
+  const copied = [...array];
+  for (let i = copied.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copied[i], copied[j]] = [copied[j], copied[i]];
+  }
+  return copied;
 }
 
 //カード処理
