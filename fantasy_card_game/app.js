@@ -119,6 +119,8 @@ function drawHand() {
   handContainer.innerHTML = "";
   currentHand = [];
 
+  let drawCount = 5; // ← 🔧 ここを追加！
+
   // 捨て札を山札に戻す（足りないとき）
   if (playerDeck.length < drawCount && discardPile.length > 0) {
     playerDeck = [...playerDeck, ...shuffle(discardPile)];
