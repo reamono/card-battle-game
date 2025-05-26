@@ -25,17 +25,36 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// === レアリティ別の出現確率設定 ===
+const rarityWeights = {
+  '★': 60,
+  '★★': 30,
+  '★★★': 10
+};
+
+function getWeightedRandomCards(n, pool) {
+  const weightedPool = [];
+  pool.forEach(card => {
+    const weight = rarityWeights[card.rarity] || 0;
+    for (let i = 0; i < weight; i++) {
+      weightedPool.push(card);
+    }
+  });
+  const shuffled = [...weightedPool].sort(() => 0.5 - Math.random());
+  return shuffled.slice(0, n);
+}
+
 // デッキ構築用：ランダムに3枚表示
 function showDeckChoices() {
   const choiceArea = document.getElementById("deck-choice");
   choiceArea.innerHTML = "";
 
-  const random3 = getRandomCards(3, cardPool);
+  const random3 = getWeightedRandomCards(3, cardPool);
 
   random3.forEach(card => {
     const cardElem = document.createElement("div");
-    const rarityClass = getRarityClass(card.rarity); // レアリティに応じたクラスを取得
-    cardElem.className = `card ${rarityClass}`; // クラスに追加
+    const rarityClass = getRarityClass(card.rarity);
+    cardElem.className = `card ${rarityClass}`;
     cardElem.innerHTML = `
       <h3>${card.name}</h3>
       <p>${card.effect}</p>
@@ -49,9 +68,9 @@ function showDeckChoices() {
       document.getElementById("deck-count").textContent = deckBuildCount;
 
       if (deckBuildCount >= 10) {
-        startBattlePhase(); // 完成したらバトル画面へ
+        startBattlePhase();
       } else {
-        showDeckChoices();  // 次の選択へ
+        showDeckChoices();
       }
     });
 
@@ -171,6 +190,7 @@ function checkBattleState() {
   }
 }
 
+// === ボス撃破時にレアカード追加（nextFloor内） ===
 function nextFloor() {
   floor++;
   enemy.hp = 20 + floor * 5;
@@ -180,6 +200,14 @@ function nextFloor() {
 
   const log = document.getElementById("log");
   log.innerHTML += `<p>${floor}階に進んだ！敵が強くなった！</p>`;
+
+  // ★★以上のカードから1枚追加
+  const candidateCards = cardPool.filter(c => c.rarity === '★★' || c.rarity === '★★★');
+  if (candidateCards.length > 0) {
+    const reward = getRandomCards(1, candidateCards)[0];
+    playerDeck.push(reward);
+    log.innerHTML += `<p>報酬として${reward.name}（${reward.rarity}）を獲得！</p>`;
+  }
 
   updateBattleStatus();
   drawHand();
