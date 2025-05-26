@@ -449,3 +449,9 @@ function updateDiscardPileDisplay() {
     toggleButton.textContent = visible ? "表示" : "非表示";
   });
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("start-battle").addEventListener("click", () => {
+    startBattlePhase();
+  });
+});
