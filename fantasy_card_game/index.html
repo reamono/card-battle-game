@@ -5,31 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>カードバトル</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    #log {
+      max-height: 100px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    #full-log {
+      display: none;
+      max-height: 300px;
+      overflow-y: auto;
+      background: white;
+      color: black;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+  </style>
 </head>
 <body>
   <h1>カードバトルゲーム</h1>
   <div id="card-container" class="card-grid"></div>
   <button id="start-battle">バトル開始</button>
-<!--   <div id="log"></div> -->
+
   <div id="deck-builder" style="display: block;">
     <h2>デッキ構築（10枚選んでください）</h2>
     <div id="deck-choice" class="card-grid"></div>
     <p>選択済み: <span id="deck-count">0</span>/10</p>
   </div>
-  
+
   <div id="battle-screen" style="display: none;">
     <h2>バトルフェーズ - <span id="floor">1</span>階</h2>
     <div>
       <p>自分のHP: <span id="player-hp">30</span> | マナ: <span id="player-mana">3</span> | シールド: <span id="player-shield">0</span></p>
       <p>敵のHP: <span id="enemy-hp">20</span></p>
     </div>
-  
+
     <div id="hand-container" class="card-grid"></div>
-  
+
     <button id="end-turn">ターン終了</button>
+    <button id="toggle-log">ログ表示</button>
     <div id="log"></div>
+    <div id="full-log"></div>
   </div>
 
   <script src="app.js"></script>
+  <script>
+    const logElement = document.getElementById("log");
+    const fullLogElement = document.getElementById("full-log");
+    const toggleLogButton = document.getElementById("toggle-log");
+    const recentLogs = [];
+    const allLogs = [];
+
+    function addLogEntry(message) {
+      allLogs.push(message);
+      recentLogs.push(message);
+      if (recentLogs.length > 5) recentLogs.shift();
+      logElement.innerHTML = recentLogs.map(line => `<p>${line}</p>`).join("");
+    }
+
+    toggleLogButton.addEventListener("click", () => {
+      fullLogElement.style.display = (fullLogElement.style.display === "none") ? "block" : "none";
+      fullLogElement.innerHTML = allLogs.map(line => `<p>${line}</p>`).join("");
+    });
+
+    // グローバルに使えるようwindowに出しておく
+    window.addLogEntry = addLogEntry;
+  </script>
 </body>
 </html>
