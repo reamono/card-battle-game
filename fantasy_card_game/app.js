@@ -141,26 +141,26 @@ function drawHand() {
 //カード処理
 function playCard(card) {
   const log = document.getElementById("log");
-  log.innerHTML += `<p>${card.name} を使った！</p>`;
+  addLogEntry(`${card.name} を使った！`);
   player.mana -= card.cost;
 
   switch (card.name) {
     case "ドレイン":
       enemy.hp -= card.power;
       player.hp += 2;
-      log.innerHTML += `<p>敵に${card.power}ダメージ、自分を2回復！</p>`;
+      addLogEntry(`敵に${card.power}ダメージ、自分を2回復！`);
       break;
     case "フレアストライク":
       enemy.hp -= card.power;
-      log.innerHTML += `<p>敵に${card.power}ダメージ！次のターン使用不可（未実装）</p>`;
+      addLogEntry(`敵に${card.power}ダメージ！次のターン使用不可（未実装）`);
       break;
     case "マナブースト":
       player.mana += 2;
-      log.innerHTML += `<p>マナが2回復！</p>`;
+      addLogEntry(`マナが2回復！`);
       break;
     case "パワーアップ":
       player.nextAttackBoost = 3;
-      log.innerHTML += `<p>次の攻撃ダメージが+3される！</p>`;
+      addLogEntry(`次の攻撃ダメージが+3される！`);
       break;
     case "ブラッドソード":
       enemy.hp -= card.power;
@@ -169,60 +169,60 @@ function playCard(card) {
         const blocked = Math.min(player.shield, selfDamage);
         selfDamage -= blocked;
         player.shield -= blocked;
-        log.innerHTML += `<p>自分のシールドで${blocked}軽減！</p>`;
+        addLogEntry(`自分のシールドで${blocked}軽減！`);
       }
       player.hp -= selfDamage;
-      log.innerHTML += `<p>敵に${card.power}ダメージ！自分に${selfDamage}ダメージ</p>`;
+      addLogEntry(`敵に${card.power}ダメージ！自分に${selfDamage}ダメージ`);
       break;
     case "シールドチャージ":
       player.shield += card.power;
       player.mana += 1;
-      log.innerHTML += `<p>シールド${card.power}とマナ1を獲得！</p>`;
+      addLogEntry(`シールド${card.power}とマナ1を獲得！`);
       break;
     case "バリア":
       playerStatus.shieldTurns = 3;
       player.shield += 2;
-      log.innerHTML += `<p>3ターン持続のシールド2を獲得！</p>`;
+      addLogEntry(`<p>3ターン持続のシールド2を獲得！`);
       break;
     case "アンチマジック":
       playerStatus.preventEnemyAction = true;
-      log.innerHTML += `<p>次の敵の行動を封じた！</p>`;
+      addLogEntry(`次の敵の行動を封じた！`);
       break;
     case "雷鳴":
       enemy.hp -= card.power;
       enemyStatus.stunned = true;
-      log.innerHTML += `<p>敵に${card.power}ダメージ＆気絶！</p>`;
+      addLogEntry(`敵に${card.power}ダメージ＆気絶！`);
       break;
     case "シールドウォール":
       playerStatus.shieldTurns = 1;
-      log.innerHTML += `<p>1ターンの全ダメージ無効化！</p>`;
+      addLogEntry(`1ターンの全ダメージ無効化！`);
       break;
     case "回復の祈り":
       playerStatus.healingOverTime = 3;
-      log.innerHTML += `<p>毎ターン3回復（3ターン継続）！</p>`;
+      addLogEntry(`毎ターン3回復（3ターン継続）！`);
       break;
     case "スモークボム":
       playerStatus.preventEnemyAction = true;
-      log.innerHTML += `<p>敵の攻撃を無効化！</p>`;
+      addLogEntry(`敵の攻撃を無効化！`);
       break;
     case "シャドウスラッシュ":
       enemy.hp -= card.power;
-      log.innerHTML += `<p>敵に${card.power}ダメージ＋命中率低下（演出）！</p>`;
+      addLogEntry(`敵に${card.power}ダメージ＋命中率低下（演出）！`);
       break;
     case "オーラヒール":
       player.hp += 2;
       player.mana += 1;
-      log.innerHTML += `<p>HP2回復＆マナ1回復！</p>`;
+      addLogEntry(`HP2回復＆マナ1回復！`);
       break;
     case "反射の鏡":
       playerStatus.reflectNext = true;
-      log.innerHTML += `<p>次の敵の攻撃を反射！</p>`;
+      addLogEntry(`次の敵の攻撃を反射！`);
       break;
     case "バーストブレード":
       const burst = player.mana + card.power;
       enemy.hp -= burst;
       player.mana = 0;
-      log.innerHTML += `<p>全マナ消費して${burst}ダメージ！</p>`;
+      addLogEntry(`全マナ消費して${burst}ダメージ！`);
       break;
     default:
       if (card.type === "攻撃") {
@@ -232,13 +232,13 @@ function playCard(card) {
           player.nextAttackBoost = 0;
         }
         enemy.hp -= dmg;
-        log.innerHTML += `<p>敵に${dmg}ダメージ！</p>`;
+        addLogEntry(`敵に${dmg}ダメージ！`);
       } else if (card.type === "回復") {
         player.hp += card.power;
-        log.innerHTML += `<p>HPを${card.power}回復！</p>`;
+        addLogEntry(`HPを${card.power}回復！`);
       } else if (card.type === "防御") {
         player.shield += card.power;
-        log.innerHTML += `<p>シールド${card.power}付与！</p>`;
+        addLogEntry(`シールド${card.power}付与！`);
       }
       break;
   }
@@ -262,21 +262,21 @@ function processTurnEffects() {
   if (playerStatus.healingOverTime > 0) {
     player.hp += 3;
     playerStatus.healingOverTime--;
-    log.innerHTML += `<p>持続回復でHPが3回復！</p>`;
+    addLogEntry(`持続回復でHPが3回復！`);
   }
 
   // バリア（全ダメージ無効）のターン数減少
   if (playerStatus.shieldTurns > 0) {
     playerStatus.shieldTurns--;
     if (playerStatus.shieldTurns === 0) {
-      log.innerHTML += `<p>バリアの効果が切れた。</p>`;
+      addLogEntry(`バリアの効果が切れた。`);
     }
   }
 
   // 敵の気絶解除
   if (enemyStatus.stunned) {
     enemyStatus.stunned = false;
-    log.innerHTML += `<p>敵は気絶から回復した。</p>`;
+    addLogEntry(`敵は気絶から回復した。`);
   }
 
   // 敵行動無効フラグ解除（1回きり）
@@ -290,22 +290,22 @@ function processTurnEffects() {
 // === 敵ターンの処理 ===
 function enemyTurn() {
   const log = document.getElementById("log");
-  log.innerHTML += `<p>敵のターン！</p>`;
+  addLogEntry(`敵のターン！`);
 
   processTurnEffects();
 
   if (playerStatus.preventEnemyAction) {
-    log.innerHTML += `<p>敵の行動は封じられている！</p>`;
+    addLogEntry(`敵の行動は封じられている！`);
   } else if (enemyStatus.stunned) {
-    log.innerHTML += `<p>敵は気絶していて行動できない！</p>`;
+    addLogEntry(`敵は気絶していて行動できない！`);
   } else {
     let damage = enemy.attack;
 
     if (playerStatus.shieldTurns > 0) {
       damage = 0;
-      log.innerHTML += `<p>バリアでダメージを無効化！</p>`;
+      addLogEntry(`バリアでダメージを無効化！`);
     } else if (playerStatus.reflectNext) {
-      log.innerHTML += `<p>敵の攻撃を反射した！敵に${damage}ダメージ！</p>`;
+      addLogEntry(`敵の攻撃を反射した！敵に${damage}ダメージ！`);
       enemy.hp -= damage;
       playerStatus.reflectNext = false;
     } else {
@@ -313,10 +313,10 @@ function enemyTurn() {
         const blocked = Math.min(player.shield, damage);
         damage -= blocked;
         player.shield -= blocked;
-        log.innerHTML += `<p>シールドで${blocked}軽減！</p>`;
+        addLogEntry(`シールドで${blocked}軽減！`);
       }
       player.hp -= damage;
-      log.innerHTML += `<p>敵の攻撃！${damage}ダメージを受けた！</p>`;
+      addLogEntry(`敵の攻撃！${damage}ダメージを受けた！`);
     }
   }
 
@@ -329,7 +329,7 @@ function enemyTurn() {
 function checkBattleState() {
   if (enemy.hp <= 0) {
     const log = document.getElementById("log");
-    log.innerHTML += `<p>敵を倒した！</p>`;
+    addLogEntry(`敵を倒した！`);
     nextFloor();
   }
 
@@ -348,14 +348,14 @@ function nextFloor() {
   player.shield = 0;
 
   const log = document.getElementById("log");
-  log.innerHTML += `<p>${floor}階に進んだ！敵が強くなった！</p>`;
+  addLogEntry(`${floor}階に進んだ！敵が強くなった！`);
 
   // ★★以上のカードから1枚追加
   const candidateCards = cardPool.filter(c => c.rarity === '★★' || c.rarity === '★★★');
   if (candidateCards.length > 0) {
     const reward = getRandomCards(1, candidateCards)[0];
     playerDeck.push(reward);
-    log.innerHTML += `<p>報酬として${reward.name}（${reward.rarity}）を獲得！</p>`;
+    addLogEntry(`報酬として${reward.name}（${reward.rarity}）を獲得！`);
   }
 
   updateBattleStatus();
