@@ -395,3 +395,30 @@ function endPlayerTurn() {
   drawHand();
 }
 
+function updateDiscardPileDisplay() {
+  const discardContainer = document.getElementById("discard-container");
+  if (!discardContainer) return;
+
+  discardContainer.innerHTML = `
+    <h3>使用済みカード <button id="toggle-discard">表示切替</button></h3>
+    <div id="discard-list" style="display: none;"></div>
+  `;
+
+  const discardList = discardContainer.querySelector("#discard-list");
+  discardPile.forEach(card => {
+    const cardElem = document.createElement("div");
+    cardElem.className = `card small ${getRarityClass(card.rarity)}`;
+    cardElem.innerHTML = `
+      <h4>${card.name}</h4>
+      <p>${card.effect}</p>
+    `;
+    discardList.appendChild(cardElem);
+  });
+
+  const toggleButton = document.getElementById("toggle-discard");
+  toggleButton.addEventListener("click", () => {
+    const visible = discardList.style.display === "block";
+    discardList.style.display = visible ? "none" : "block";
+    toggleButton.textContent = visible ? "表示" : "非表示";
+  });
+}
