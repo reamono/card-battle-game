@@ -34,11 +34,13 @@ function showDeckChoices() {
 
   random3.forEach(card => {
     const cardElem = document.createElement("div");
-    cardElem.className = "card";
+    const rarityClass = getRarityClass(card.rarity); // レアリティに応じたクラスを取得
+    cardElem.className = `card ${rarityClass}`; // クラスに追加
     cardElem.innerHTML = `
       <h3>${card.name}</h3>
       <p>${card.effect}</p>
       <p>マナ: ${card.cost}</p>
+      <p class="rarity">${card.rarity}</p>
     `;
 
     cardElem.addEventListener("click", () => {
@@ -180,3 +182,13 @@ function nextFloor() {
   updateBattleStatus();
   drawHand();
 }
+
+function getRarityClass(rarity) {
+  switch (rarity) {
+    case '★': return 'rarity-common';
+    case '★★': return 'rarity-rare';
+    case '★★★': return 'rarity-epic';
+    default: return 'rarity-common';
+  }
+}
+
