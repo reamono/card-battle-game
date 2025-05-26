@@ -2,7 +2,9 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbwmrF3D7q_pO8up68oFgOhKqyx6PbbVs4BOYv17atgBWWh1i_Q6-IKsEmq0mbNSnOVD/exec';
 
 let cardPool = [];         // 全カードデータ
-let playerDeck = [];       // 選ばれた10枚
+let playerDeck = [];       // 山札
+let discardPile = [];      // 捨て札
+let currentHand = [];      // 現在の手札
 let deckBuildCount = 0;    // 選択済み枚数
 let player = {
   hp: 30,
@@ -107,6 +109,7 @@ function startBattlePhase() {
   updateBattleStatus();
 
   document.getElementById("end-turn").addEventListener("click", () => {
+    endPlayerTurn();
     enemyTurn();
   });
 }
@@ -114,9 +117,23 @@ function startBattlePhase() {
 function drawHand() {
   const handContainer = document.getElementById("hand-container");
   handContainer.innerHTML = "";
+  currentHand = [];
+
+    // 山札が足りない場合は捨て札を戻す
+  if (playerDeck.length < 5) {
+    playerDeck = [...playerDeck, ...discardPile];
+    discardPile = [];
+  }
 
   const hand = getRandomCards(5, playerDeck); // 10枚から5枚引く
+  currentHand = hand;
 
+    // 山札から取り除く
+  hand.forEach(c => {
+    const index = playerDeck.findIndex(d => d.id === c.id);
+    if (index !== -1) playerDeck.splice(index, 1);
+  });
+  
   hand.forEach(card => {
     const cardElem = document.createElement("div");
     const rarityClass = getRarityClass(card.rarity); // レアリティに応じたクラスを取得
@@ -369,5 +386,12 @@ function getRarityClass(rarity) {
     case '★★★': return 'rarity-epic';
     default: return 'rarity-common';
   }
+}
+
+function endPlayerTurn() {
+  // 使っていない手札をすべて捨て札に
+  discardPile.push(...currentHand);
+  currentHand = [];
+  drawHand();
 }
 
