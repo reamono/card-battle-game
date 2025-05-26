@@ -125,11 +125,17 @@ function drawHand() {
     discardPile = [];
   }
 
-  // 本当に何も引けないときだけログを出して終了（ありえない処理）
-  if (playerDeck.length === 0) {
+  // 本当に何も引けないときだけログを出して終了
+  if (playerDeck.length === 0 && discardPile.length === 0 && cardPool.length === 0) {
     addLogEntry("カードが尽きてこれ以上引けません！");
     return;
   }
+
+  // デッキが空でカードプールが残っている場合、最初の配布とみなす
+  if (playerDeck.length === 0 && cardPool.length > 0) {
+    playerDeck = [...cardPool];
+  }
+
 
   // 実際にカードを引く（最大5枚）
   const drawn = playerDeck.splice(0, drawCount);
