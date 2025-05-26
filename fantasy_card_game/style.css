@@ -19,7 +19,7 @@ body {
   width: 150px;
   border: 1px solid #ccc;
   background: rgba(255, 255, 255, 0.9); /* 半透明でもOK */
-  color: black; /* ← これが重要！ *
+  color: black; /* ← これが重要！ */
   padding: 10px;
   text-align: center;
   cursor: pointer;
@@ -36,4 +36,19 @@ body {
 .card.selected {
   border: 2px solid #007bff;
   background: #e0f0ff;
+}
+
+.rarity-common {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ccc;
+}
+
+.rarity-rare {
+  background-color: rgba(173, 216, 230, 0.9); /* light blue */
+  border: 2px solid #1e90ff;
+}
+
+.rarity-epic {
+  background-color: rgba(230, 200, 255, 0.9); /* purple-ish */
+  border: 2px solid #9400d3;
 }
