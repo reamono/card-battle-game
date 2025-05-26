@@ -2,58 +2,16 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>カード選択</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>カードバトル</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Live2D Cubism Core SDK -->
-  <script src="libs/live2dcubismcore.min.js"></script>
-  <script src="libs/live2d.min.js"></script>
-  <!-- Pixi.js -->
-  <script src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.8/dist/browser/pixi.min.js"></script>
-  <!-- pixi-live2d-display UMD版 -->
-  <script src="https://cdn.jsdelivr.net/npm/pixi-live2d-display/dist/index.min.js"></script>
-
-  <style>
-    #live2d-container {
-      position: fixed;
-      bottom: 0;
-      right: 0;
-      width: 300px;
-      height: 500px;
-      pointer-events: none;
-      z-index: 1000;
-    }
-  </style>
 </head>
 <body>
-  <h1>初期デッキ構築</h1>
-  <p id="deck-count">現在のデッキ枚数: 0 / 10</p>
-  <button id="get-cards-btn">3枚のカードを取得</button>
-  <div id="card-container" class="card-container"></div>
-  <button id="battle-button" style="display:none;">バトル開始！</button>
-  <p id="message"></p>
-  <div id="manaDisplay">マナ: 3/3</div>
-  <div id="playerHP">プレイヤーHP: 20</div>
-  <div id="enemyHP">敵HP: 20</div>
-  <pre id="log" style="height: 150px; overflow-y: auto; border: 1px solid #aaa;"></pre>
-  <div id="hand"></div>
+  <h1>カードバトルゲーム</h1>
+  <div id="card-container" class="card-grid"></div>
+  <button id="start-battle">バトル開始</button>
+  <div id="log"></div>
 
-<!--   <div id="live2d-container">
-    <div id="live2d-app"></div>
-  </div> -->
-
-  <div id="attack-effect" style="
-    position: fixed;
-    top: 100px;
-    right: 100px;
-    width: 200px;
-    height: 200px;
-    display: none;
-    z-index: 999;
-    pointer-events: none;">
-    <img src="images/slashing-effect.gif" alt="炎" style="width: 100%; height: 100%;">
-  </div>
-
-  <!-- app.js を最下部で読み込み -->
   <script src="app.js"></script>
 </body>
 </html>
