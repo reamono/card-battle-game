@@ -36,7 +36,6 @@ function showDeckChoices() {
     const cardElem = document.createElement("div");
     cardElem.className = "card";
     cardElem.innerHTML = `
-      <img src="${card.image}" alt="${card.name}" />
       <h3>${card.name}</h3>
       <p>${card.effect}</p>
       <p>マナ: ${card.cost}</p>
@@ -86,7 +85,6 @@ function drawHand() {
     const cardElem = document.createElement("div");
     cardElem.className = "card";
     cardElem.innerHTML = `
-      <img src="${card.image}" alt="${card.name}">
       <h3>${card.name}</h3>
       <p>${card.effect}</p>
       <p>マナ: ${card.cost}</p>
