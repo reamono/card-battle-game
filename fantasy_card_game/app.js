@@ -31,7 +31,12 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.json())
     .then(data => {
       cardPool = data;
-      showDeckChoices();
+      // showDeckChoices(); ← 初期表示では呼び出さない
+      document.getElementById("start-battle").addEventListener("click", () => {
+        document.getElementById("start-battle").style.display = "none";
+        document.getElementById("deck-builder").style.display = "block";
+        showDeckChoices();
+      });
     });
 });
 
