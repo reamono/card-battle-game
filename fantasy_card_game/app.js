@@ -147,7 +147,13 @@ function drawHand() {
     cardElem.addEventListener("click", () => {
       if (player.mana >= card.cost) {
         playCard(card);
-        cardElem.classList.add("used");
+    
+        // カードを使用済みにする処理
+        discardPile.push(card);
+        currentHand = currentHand.filter(c => c !== card); // 手札から削除
+    
+        cardElem.remove(); // 表示からも削除
+        updateDiscardPileDisplay(); // 捨て札表示更新
       }
     });
 
