@@ -452,6 +452,6 @@ function updateDiscardPileDisplay() {
 
 window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("start-battle").addEventListener("click", () => {
-    startBattlePhase();
+    startDeckBuilding();
   });
 });
