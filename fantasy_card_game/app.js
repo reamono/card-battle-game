@@ -398,6 +398,11 @@ function endPlayerTurn() {
   // 使っていない手札をすべて捨て札に
   discardPile.push(...currentHand);
   currentHand = [];
+  // 画面からもすべての手札カードを削除
+  const handContainer = document.getElementById("hand-container");
+  handContainer.innerHTML = "";
+
+  updateDiscardPileDisplay(); // 捨て札を更新表示
   drawHand();
 }
 
