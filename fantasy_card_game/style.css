@@ -18,11 +18,19 @@ body {
 .card {
   width: 150px;
   border: 1px solid #ccc;
-  background: white;
+  background: rgba(255, 255, 255, 0.9); /* 半透明でもOK */
+  color: black; /* ← これが重要！ *
   padding: 10px;
   text-align: center;
   cursor: pointer;
   transition: 0.3s;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 
 .card.selected {
