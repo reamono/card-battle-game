@@ -241,7 +241,7 @@ function drawHand() {
     cardElem.className = `card ${rarityClass}`;
     cardElem.innerHTML = `
       <h3>${card.name}</h3>
-      <p>${card.effect}</p>
+      <p>${card.description}</p>
       <p>マナ: ${card.cost}</p>
       <p class="rarity">${card.rarity}</p>
     `;
