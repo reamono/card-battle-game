@@ -197,7 +197,7 @@ function showCharacters() {
   const bossWrapper = document.createElement("div");
   bossWrapper.className = "character-wrapper";
   const bossImg = document.createElement("img");
-  bossImg.src = "images/boss.png";
+  bossImg.src = "images/boss1.png";
   bossImg.alt = "ボス";
   bossImg.id = "boss-character";
   bossWrapper.appendChild(bossImg);
