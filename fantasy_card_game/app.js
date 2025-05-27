@@ -36,7 +36,7 @@ let enemyStatus = {
   stunned: false
 };
 
-function applyStatusEffects() {
+function applyPlayerStatusEffects() {
   if (playerStatus.poisoned > 0) {
     player.hp -= 2;
     playerStatus.poisoned--;
@@ -47,6 +47,13 @@ function applyStatusEffects() {
     playerStatus.burned--;
     addLogEntry("プレイヤーは火傷で3ダメージを受けた！");
   }
+  if (playerStatus.attackBoost > 0) {
+    playerStatus.attackBoost--;
+    addLogEntry("プレイヤーの攻撃強化が1ターン減少した");
+  }
+}
+
+function applyEnemyStatusEffects() {
   if (enemyStatus.poisoned > 0) {
     enemy.hp -= 2;
     enemyStatus.poisoned--;
@@ -56,6 +63,10 @@ function applyStatusEffects() {
     enemy.hp -= 3;
     enemyStatus.burned--;
     addLogEntry("敵は火傷で3ダメージを受けた！");
+  }
+  if (enemyStatus.attackDown > 0) {
+    enemyStatus.attackDown--;
+    addLogEntry("敵の攻撃力低下が1ターン減少した");
   }
 }
 
@@ -196,6 +207,7 @@ function startBattlePhase() {
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
   showCharacters();
+  applyPlayerStatusEffects(); // 状態異常処理（自分）
   drawHand();
   updateBattleStatus();
 
@@ -378,8 +390,8 @@ function processTurnEffects() {
 function enemyTurn() {
   const log = document.getElementById("log");
   addLogEntry(`敵のターン！`);
-
   processTurnEffects();
+  applyEnemyStatusEffects(); // 状態異常処理（敵）
 
   if (playerStatus.preventEnemyAction) {
     addLogEntry(`敵の行動は封じられている！`);
@@ -408,7 +420,6 @@ function enemyTurn() {
   }
 
   player.mana = 3; // 次ターン回復
-  applyStatusEffects(); // 敵ターン終了後にも状態異常処理
   updateBattleStatus();
   checkBattleState();
   drawHand();
@@ -467,7 +478,6 @@ function endPlayerTurn() {
   const handContainer = document.getElementById("hand-container");
   handContainer.innerHTML = "";
 
-  applyStatusEffects(); // ここで状態異常処理を実行
   updateDiscardPileDisplay(); // 捨て札を更新表示
   drawHand();
 }
