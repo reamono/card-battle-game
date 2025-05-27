@@ -57,6 +57,9 @@ function showRewardSelection() {
   const choices = getRandomCards(3, cardPool);
   pendingRewards = choices;
 
+  // 🔕 ターン終了ボタンを隠す
+  document.getElementById("end-turn-button").style.display = "none";
+
   choices.forEach(card => {
     const cardElem = document.createElement("div");
     cardElem.className = "card reward-card";
@@ -283,28 +286,34 @@ function getRandomCards(n, pool) {
 function startBattlePhase() {
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
+
+  // 🔄 重複防止：直接HTMLを置き換える（前のキャラ消える）
   document.getElementById("battle-area").innerHTML = `
-  <div class="character-wrapper">
-    <img src="images/player.png" alt="プレイヤー" id="player-character">
-  </div>
-  <div class="character-wrapper">
-    <img src="images/boss1.png" alt="ボス" id="boss-character">
-  </div>
+    <div class="character-wrapper">
+      <img src="images/player.png" alt="プレイヤー" id="player-character">
+    </div>
+    <div class="character-wrapper">
+      <img src="images/boss1.png" alt="ボス" id="boss-character">
+    </div>
   `;
+
+  updateBossArt();
+  applyPlayerStatusEffects();
+
   enemy = {
-  hp: 20 + floor * 5,  // 階層に応じて強化
-  attack: 4 + floor,   // 攻撃力も強化
+    hp: 20 + floor * 5,
+    attack: 4 + floor,
   };
 
-  showCharacters();
-  applyPlayerStatusEffects(); // 状態異常処理（自分）
   drawHand();
   updateBattleStatus();
+  updateDiscardPileDisplay();
 
   document.getElementById("end-turn").addEventListener("click", () => {
     endPlayerTurn();
     enemyTurn();
   });
+
   document.getElementById("end-turn-button").style.display = "block";
 }
 
