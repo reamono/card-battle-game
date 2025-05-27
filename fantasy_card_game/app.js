@@ -36,6 +36,7 @@ function showCharacters() {
   const playerImg = document.createElement("img");
   playerImg.src = "images/player.png";
   playerImg.alt = "プレイヤー";
+  playerImg.id = "player-character";
   playerWrapper.appendChild(playerImg);
 
   const bossWrapper = document.createElement("div");
@@ -43,6 +44,7 @@ function showCharacters() {
   const bossImg = document.createElement("img");
   bossImg.src = "images/boss.png";
   bossImg.alt = "ボス";
+  bossImg.id = "boss-character";
   bossWrapper.appendChild(bossImg);
 
   battleArea.appendChild(playerWrapper);
