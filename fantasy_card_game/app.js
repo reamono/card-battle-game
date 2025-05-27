@@ -220,6 +220,25 @@ function showEffect(type) {
   }, 1000);
 }
 
+function animateCharacter(card) {
+  const playerElem = document.getElementById("player-character");
+  const bossElem = document.getElementById("boss-character");
+
+  // カードタイプごとにクラス付与（CSSで動き）
+  if (card.type === "攻撃") {
+    playerElem.classList.add("player-attack");
+    bossElem.classList.add("boss-hit");
+  } else if (card.type === "回復") {
+    playerElem.classList.add("player-heal");
+  }
+
+  // アニメーション終了後にクラスを除去
+  setTimeout(() => {
+    playerElem.classList.remove("player-attack", "player-heal");
+    bossElem.classList.remove("boss-hit");
+  }, 1000);
+}
+
 //カード処理
 function playCard(card) {
   const log = document.getElementById("log");
@@ -309,6 +328,7 @@ function playCard(card) {
     default:
       if (card.type === "攻撃") {
         showEffect("attack");
+        animateCharacter(card);
         let dmg = card.power;
         if (player.nextAttackBoost) {
           dmg += player.nextAttackBoost;
@@ -318,10 +338,12 @@ function playCard(card) {
         addLogEntry(`敵に${dmg}ダメージ！`);
       } else if (card.type === "回復") {
         showEffect("heal");
+        animateCharacter(card);
         player.hp += card.power;
         addLogEntry(`HPを${card.power}回復！`);
       } else if (card.type === "防御") {
         showEffect("defense");
+        animateCharacter(card);
         player.shield += card.power;
         addLogEntry(`シールド${card.power}付与！`);
       }
