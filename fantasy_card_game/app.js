@@ -288,7 +288,7 @@ function startBattlePhase() {
     <img src="images/player.png" alt="プレイヤー" id="player-character">
   </div>
   <div class="character-wrapper">
-    <img src="images/boss${index}.png" alt="ボス" id="boss-character">
+    <img src="images/boss1.png" alt="ボス" id="boss-character">
   </div>
   `;
   enemy = {
@@ -305,6 +305,7 @@ function startBattlePhase() {
     endPlayerTurn();
     enemyTurn();
   });
+  document.getElementById("end-turn-button").style.display = "block";
 }
 
 function drawHand() {
