@@ -145,3 +145,37 @@ button {
     width: 100%;
   }
 }
+
+/* 攻撃を受けたときの赤点滅 */
+.boss-hit {
+  animation: bossHit 0.4s ease;
+}
+
+@keyframes bossHit {
+  0% { filter: brightness(1) }
+  50% { filter: brightness(3) }
+  100% { filter: brightness(1) }
+}
+
+/* 主人公が剣を振るような動き */
+.player-attack {
+  animation: playerAttack 0.4s ease;
+}
+
+@keyframes playerAttack {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-10px) rotate(-5deg); }
+  100% { transform: translateY(0); }
+}
+
+/* 回復アニメ */
+.player-heal {
+  animation: playerHeal 1s ease;
+}
+
+@keyframes playerHeal {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.8); }
+  100% { filter: brightness(1); }
+}
+
