@@ -71,6 +71,37 @@ button {
   min-width: 120px;
 }
 
+.card-effect {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  animation: pop 1s ease-out;
+  pointer-events: none;
+}
+
+.card-effect.attack {
+  color: red;
+  content: "💥";
+}
+
+.card-effect.heal {
+  color: green;
+  content: "✨";
+}
+
+.card-effect.defense {
+  color: blue;
+  content: "🛡️";
+}
+
+@keyframes pop {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.5; }
+  50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+}
+
 @media (max-width: 480px) {
   .card {
     width: 100%;
