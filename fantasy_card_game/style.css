@@ -83,17 +83,14 @@ button {
 
 .card-effect.attack {
   color: red;
-  content: "💥";
 }
 
 .card-effect.heal {
   color: green;
-  content: "✨";
 }
 
 .card-effect.defense {
   color: blue;
-  content: "🛡️";
 }
 
 @keyframes pop {
