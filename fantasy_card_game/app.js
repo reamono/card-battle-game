@@ -15,6 +15,7 @@ let playerDeck = [];       // 山札
 let discardPile = [];      // 捨て札
 let currentHand = [];      // 現在の手札
 let deckBuildCount = 0;    // 選択済み枚数
+let pendingRewards = [];   // 報酬カード
 let player = {
   hp: MAX_HP,
   mana: 3,
@@ -29,13 +30,47 @@ let playerStatus = {
   healingOverTime: 0,
   shieldTurns: 0,
   preventEnemyAction: false,
-  reflectNext: false
+  reflectNext: false,
+  poisoned: 0,
+  burned: 0,
+  attackBoost: 0,
+  nextCardFree: false
 };
 
 let enemyStatus = {
-  stunned: false
+  stunned: false,
+  poisoned: 0,
+  burned: 0,
+  attackDown: 0
 };
 
+function showRewardSelection() {
+  const rewardArea = document.getElementById("reward-area");
+  rewardArea.innerHTML = "<h3>報酬カードを1枚選んでください</h3>";
+  const choices = getRandomCards(3);
+  pendingRewards = choices;
+
+  choices.forEach(card => {
+    const cardElem = document.createElement("div");
+    cardElem.className = "card";
+    cardElem.innerHTML = `
+      <h4>${card.name}</h4>
+      <p>${card.description}</p>
+      <p>マナ: ${card.cost}</p>
+      <p class="rarity">${card.rarity}</p>
+    `;
+    cardElem.addEventListener("click", () => {
+      playerDeck.push(card);
+      rewardArea.innerHTML = "<p>カードを獲得しました！</p>";
+      document.getElementById("next-floor-button").style.display = "block";
+    });
+    rewardArea.appendChild(cardElem);
+  });
+
+  rewardArea.style.display = "block";
+}
+
+// ボス撃破時の報酬処理
 function applyPlayerStatusEffects() {
   if (playerStatus.poisoned > 0) {
     player.hp -= 2;
@@ -51,6 +86,31 @@ function applyPlayerStatusEffects() {
     playerStatus.attackBoost--;
     addLogEntry("プレイヤーの攻撃強化が1ターン減少した");
   }
+}
+
+function getRandomCards(n) {
+  const results = [];
+  const weights = cardPool.map(card => rarityWeights[card.rarity] || 1);
+  while (results.length < n) {
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
+    let rand = Math.random() * totalWeight;
+    for (let i = 0; i < cardPool.length; i++) {
+      rand -= weights[i];
+      if (rand <= 0) {
+        results.push(cardPool[i]);
+        break;
+      }
+    }
+  }
+  return results;
+}
+
+// 次の階層ボタン処理
+function advanceToNextFloor() {
+  floor++;
+  document.getElementById("reward-area").style.display = "none";
+  document.getElementById("next-floor-button").style.display = "none";
+  startBattlePhase();
 }
 
 function applyEnemyStatusEffects() {
