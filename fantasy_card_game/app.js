@@ -1,13 +1,22 @@
 // スプレッドシートのJSONエンドポイントを指定
 const API_URL = 'https://script.google.com/macros/s/AKfycbwmrF3D7q_pO8up68oFgOhKqyx6PbbVs4BOYv17atgBWWh1i_Q6-IKsEmq0mbNSnOVD/exec';
 
+// === レアリティ別の出現確率設定 ===
+const rarityWeights = {
+  '★': 60,
+  '★★': 30,
+  '★★★': 10
+};
+
+const MAX_HP = 30;
+
 let cardPool = [];         // 全カードデータ
 let playerDeck = [];       // 山札
 let discardPile = [];      // 捨て札
 let currentHand = [];      // 現在の手札
 let deckBuildCount = 0;    // 選択済み枚数
 let player = {
-  hp: 30,
+  hp: MAX_HP,
   mana: 3,
   shield: 0,
 };
@@ -60,7 +69,10 @@ function executeEffect(effectStr) {
     const arg = parseFloat(match[2]);
 
     const effectFuncs = {
-      damageEnemy: val => enemy.hp -= val,
+      damageEnemy: val => {
+        const boost = playerStatus.attackBoost > 0 ? 1.5 : 1; // 仮に1.5倍
+        enemy.hp -= val * boost;
+      },
       heal: val => player.hp = Math.min(player.hp + val, 30),
       shield: val => player.shield += val,
       selfDamage: val => player.hp -= val,
@@ -72,8 +84,10 @@ function executeEffect(effectStr) {
       burnSelf: turns => playerStatus.burned = turns,
       multiHit: times => {
         for (let i = 0; i < times; i++) {
-          enemy.hp -= 2;
-          addLogEntry(`連撃 ${i + 1}発目で2ダメージ`);
+          const boost = playerStatus.attackBoost > 0 ? 1.5 : 1;
+          const damage = 2 * boost;
+          enemy.hp -= damage;
+          addLogEntry(`連撃 ${i + 1}発目で${damage}ダメージ`);
         }
       },
       buffAttack: turns => playerStatus.attackBoost = turns,
@@ -125,13 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 });
-
-// === レアリティ別の出現確率設定 ===
-const rarityWeights = {
-  '★': 60,
-  '★★': 30,
-  '★★★': 10
-};
 
 function getWeightedRandomCards(n, pool) {
   const weightedPool = [];
@@ -401,6 +408,7 @@ function enemyTurn() {
   }
 
   player.mana = 3; // 次ターン回復
+  applyStatusEffects(); // 敵ターン終了後にも状態異常処理
   updateBattleStatus();
   checkBattleState();
   drawHand();
@@ -459,6 +467,7 @@ function endPlayerTurn() {
   const handContainer = document.getElementById("hand-container");
   handContainer.innerHTML = "";
 
+  applyStatusEffects(); // ここで状態異常処理を実行
   updateDiscardPileDisplay(); // 捨て札を更新表示
   drawHand();
 }
