@@ -314,7 +314,7 @@ function playCard(card) {
     executeEffect(card.effect);
   }
   player.mana -= card.cost;
-  updateUI();
+  updateBattleStatus();
   addLogEntry(`${card.name} を使った！`);
 
   checkBattleState();
@@ -501,7 +501,14 @@ function updateDiscardPileDisplay() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("start-battle").addEventListener("click", () => {
-    startDeckBuilding();
-  });
+  fetch(API_URL)
+    .then(res => res.json())
+    .then(data => {
+      cardPool = data;
+      document.getElementById("start-battle").addEventListener("click", () => {
+        document.getElementById("start-battle").style.display = "none";
+        document.getElementById("deck-builder").style.display = "block";
+        showDeckChoices();
+      });
+    });
 });
