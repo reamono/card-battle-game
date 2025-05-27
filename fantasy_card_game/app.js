@@ -30,20 +30,23 @@ let enemyStatus = {
 // キャラクター画像の表示処理
 function showCharacters() {
   const battleArea = document.getElementById("battle-area");
-  if (!battleArea) return;
 
+  const playerWrapper = document.createElement("div");
+  playerWrapper.className = "character-wrapper";
   const playerImg = document.createElement("img");
-  playerImg.src = "./images/player.png";
+  playerImg.src = "images/player.png";
   playerImg.alt = "プレイヤー";
-  playerImg.id = "player-character";
+  playerWrapper.appendChild(playerImg);
 
+  const bossWrapper = document.createElement("div");
+  bossWrapper.className = "character-wrapper";
   const bossImg = document.createElement("img");
-  bossImg.src = "./images/boss.png";
+  bossImg.src = "images/boss.png";
   bossImg.alt = "ボス";
-  bossImg.id = "boss-character";
+  bossWrapper.appendChild(bossImg);
 
-  battleArea.appendChild(playerImg);
-  battleArea.appendChild(bossImg);
+  battleArea.appendChild(playerWrapper);
+  battleArea.appendChild(bossWrapper);
 }
 
 // JSONデータを取得して初期化
