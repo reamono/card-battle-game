@@ -181,11 +181,21 @@ function shuffle(array) {
 function showEffect(type) {
   const effectElem = document.createElement("div");
   effectElem.className = `card-effect ${type}`;
+
+  // 絵文字の中身を直接設定する
+  if (type === "attack") {
+    effectElem.textContent = "💥";
+  } else if (type === "heal") {
+    effectElem.textContent = "✨";
+  } else if (type === "defense") {
+    effectElem.textContent = "🛡️";
+  }
+
   document.body.appendChild(effectElem);
 
   setTimeout(() => {
     effectElem.remove();
-  }, 1000); // 1秒で消える
+  }, 1000);
 }
 
 //カード処理
