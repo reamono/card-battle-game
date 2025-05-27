@@ -93,6 +93,22 @@ button {
   color: blue;
 }
 
+#character-area {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 10%;
+}
+
+#character-area img {
+  height: 100%;
+  object-fit: contain;
+  max-width: 40%;
+}
+
 @keyframes pop {
   0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.5; }
   50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
