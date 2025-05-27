@@ -27,6 +27,26 @@ let enemyStatus = {
   stunned: false
 };
 
+function executeEffect(effectStr) {
+  const match = effectStr.match(/(\w+)\(([^)]*)\)/);
+  if (!match) return;
+  const func = match[1];
+  const arg = parseFloat(match[2]);
+
+  const effectFuncs = {
+    damageEnemy: val => enemy.hp -= val,
+    heal: val => player.hp = Math.min(player.hp + val, 30),
+    shield: val => player.shield += val,
+    selfDamage: val => applySelfDamage(val),
+    stunEnemy: () => enemyStatus.stunned = true,
+    manaBoost: val => player.mana += val
+  };
+
+  if (effectFuncs[func]) {
+    effectFuncs[func](arg);
+  }
+}
+
 // キャラクター画像の表示処理
 function showCharacters() {
   const battleArea = document.getElementById("battle-area");
@@ -243,117 +263,28 @@ function animateCharacter(card) {
 
 //カード処理
 function playCard(card) {
-  const log = document.getElementById("log");
-  addLogEntry(`${card.name} を使った！`);
-  player.mana -= card.cost;
-
-  switch (card.name) {
-    case "ドレイン":
-      enemy.hp -= card.power;
-      player.hp += 2;
-      addLogEntry(`敵に${card.power}ダメージ、自分を2回復！`);
-      break;
-    case "フレアストライク":
-      enemy.hp -= card.power;
-      addLogEntry(`敵に${card.power}ダメージ！次のターン使用不可（未実装）`);
-      break;
-    case "マナブースト":
-      player.mana += 2;
-      addLogEntry(`マナが2回復！`);
-      break;
-    case "パワーアップ":
-      player.nextAttackBoost = 3;
-      addLogEntry(`次の攻撃ダメージが+3される！`);
-      break;
-    case "ブラッドソード":
-      enemy.hp -= card.power;
-      let selfDamage = 1;
-      if (player.shield > 0) {
-        const blocked = Math.min(player.shield, selfDamage);
-        selfDamage -= blocked;
-        player.shield -= blocked;
-        addLogEntry(`自分のシールドで${blocked}軽減！`);
-      }
-      player.hp -= selfDamage;
-      addLogEntry(`敵に${card.power}ダメージ！自分に${selfDamage}ダメージ`);
-      break;
-    case "シールドチャージ":
-      player.shield += card.power;
-      player.mana += 1;
-      addLogEntry(`シールド${card.power}とマナ1を獲得！`);
-      break;
-    case "バリア":
-      playerStatus.shieldTurns = 3;
-      player.shield += 2;
-      addLogEntry(`<p>3ターン持続のシールド2を獲得！`);
-      break;
-    case "アンチマジック":
-      playerStatus.preventEnemyAction = true;
-      addLogEntry(`次の敵の行動を封じた！`);
-      break;
-    case "雷鳴":
-      enemy.hp -= card.power;
-      enemyStatus.stunned = true;
-      addLogEntry(`敵に${card.power}ダメージ＆気絶！`);
-      break;
-    case "シールドウォール":
-      playerStatus.shieldTurns = 1;
-      addLogEntry(`1ターンの全ダメージ無効化！`);
-      break;
-    case "回復の祈り":
-      playerStatus.healingOverTime = 3;
-      addLogEntry(`毎ターン3回復（3ターン継続）！`);
-      break;
-    case "スモークボム":
-      playerStatus.preventEnemyAction = true;
-      addLogEntry(`敵の攻撃を無効化！`);
-      break;
-    case "シャドウスラッシュ":
-      enemy.hp -= card.power;
-      addLogEntry(`敵に${card.power}ダメージ＋命中率低下（演出）！`);
-      break;
-    case "オーラヒール":
-      player.hp += 2;
-      player.mana += 1;
-      addLogEntry(`HP2回復＆マナ1回復！`);
-      break;
-    case "反射の鏡":
-      playerStatus.reflectNext = true;
-      addLogEntry(`次の敵の攻撃を反射！`);
-      break;
-    case "バーストブレード":
-      const burst = player.mana + card.power;
-      enemy.hp -= burst;
-      player.mana = 0;
-      addLogEntry(`全マナ消費して${burst}ダメージ！`);
-      break;
-    default:
-      if (card.type === "攻撃") {
-        showEffect("attack");
-        animateCharacter(card);
-        let dmg = card.power;
-        if (player.nextAttackBoost) {
-          dmg += player.nextAttackBoost;
-          player.nextAttackBoost = 0;
-        }
-        enemy.hp -= dmg;
-        addLogEntry(`敵に${dmg}ダメージ！`);
-      } else if (card.type === "回復") {
-        showEffect("heal");
-        animateCharacter(card);
-        player.hp += card.power;
-        addLogEntry(`HPを${card.power}回復！`);
-      } else if (card.type === "防御") {
-        showEffect("defense");
-        animateCharacter(card);
-        player.shield += card.power;
-        addLogEntry(`シールド${card.power}付与！`);
-      }
-      break;
+  if (card.effect) {
+    executeEffect(card.effect);
   }
+  player.mana -= card.cost;
+  updateUI();
+  addLogEntry(`${card.name} を使った！`);
 
   checkBattleState();
   updateBattleStatus();
+}
+
+function generateEnemy(floor) {
+  const enemyList = [
+    { name: "スライム", hp: 10, attack: 2 },
+    { name: "ゴーレム", hp: 20, attack: 4 },
+    { name: "ウィザード", hp: 15, attack: 3, special: "stun" },
+    { name: "ドラゴン", hp: 30, attack: 6, special: "fire" }
+  ];
+  const index = Math.floor(Math.random() * enemyList.length);
+  const selected = enemyList[index];
+  enemy = { ...selected };
+  addLogEntry(`${enemy.name} が現れた！`);
 }
 
 function updateBattleStatus() {
