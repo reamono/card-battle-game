@@ -177,6 +177,17 @@ function shuffle(array) {
   return copied;
 }
 
+// エフェクト処理
+function showEffect(type) {
+  const effectElem = document.createElement("div");
+  effectElem.className = `card-effect ${type}`;
+  document.body.appendChild(effectElem);
+
+  setTimeout(() => {
+    effectElem.remove();
+  }, 1000); // 1秒で消える
+}
+
 //カード処理
 function playCard(card) {
   const log = document.getElementById("log");
@@ -265,6 +276,7 @@ function playCard(card) {
       break;
     default:
       if (card.type === "攻撃") {
+        showEffect("attack");
         let dmg = card.power;
         if (player.nextAttackBoost) {
           dmg += player.nextAttackBoost;
@@ -273,9 +285,11 @@ function playCard(card) {
         enemy.hp -= dmg;
         addLogEntry(`敵に${dmg}ダメージ！`);
       } else if (card.type === "回復") {
+        showEffect("heal");
         player.hp += card.power;
         addLogEntry(`HPを${card.power}回復！`);
       } else if (card.type === "防御") {
+        showEffect("defense");
         player.shield += card.power;
         addLogEntry(`シールド${card.power}付与！`);
       }
