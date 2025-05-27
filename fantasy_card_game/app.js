@@ -16,6 +16,7 @@ let discardPile = [];      // 捨て札
 let currentHand = [];      // 現在の手札
 let deckBuildCount = 0;    // 選択済み枚数
 let pendingRewards = [];   // 報酬カード
+
 let player = {
   hp: MAX_HP,
   mana: 3,
@@ -46,6 +47,14 @@ let enemyStatus = {
 
 function showRewardSelection() {
   const rewardArea = document.getElementById("reward-area");
+  const nextFloorBtn = document.getElementById("next-floor-button");
+  const endTurnBtn = document.getElementById("end-turn-button");
+
+  if (!rewardArea || !nextFloorBtn || !endTurnBtn) {
+    console.error("必要なDOM要素が見つかりません。");
+    return;
+  }
+
   rewardArea.innerHTML = "<h3>報酬カードを1枚選んでください</h3>";
 
   if (!Array.isArray(cardPool) || cardPool.length === 0) {
@@ -57,8 +66,7 @@ function showRewardSelection() {
   const choices = getRandomCards(3, cardPool);
   pendingRewards = choices;
 
-  // 🔕 ターン終了ボタンを隠す
-  document.getElementById("end-turn-button").style.display = "none";
+  endTurnBtn.style.display = "none";
 
   choices.forEach(card => {
     const cardElem = document.createElement("div");
@@ -72,7 +80,7 @@ function showRewardSelection() {
     cardElem.addEventListener("click", () => {
       playerDeck.push(card);
       rewardArea.innerHTML = "<p>カードを獲得しました！</p>";
-      document.getElementById("next-floor-button").style.display = "block";
+      nextFloorBtn.style.display = "block";
     });
     rewardArea.appendChild(cardElem);
   });
@@ -118,9 +126,10 @@ function getRandomCards(n, pool) {
 // 次の階層ボタン処理
 function advanceToNextFloor() {
   floor++;
-  document.getElementById("reward-area").style.display = "none";
-  document.getElementById("next-floor-button").style.display = "none";
-  updateBossArt();
+  const rewardArea = document.getElementById("reward-area");
+  const nextFloorBtn = document.getElementById("next-floor-button");
+  if (rewardArea) rewardArea.style.display = "none";
+  if (nextFloorBtn) nextFloorBtn.style.display = "none";
   startBattlePhase();
 }
 
@@ -279,8 +288,20 @@ function showDeckChoices() {
 
 // ランダムにN枚選出
 function getRandomCards(n, pool) {
-  const shuffled = [...pool].sort(() => 0.5 - Math.random());
-  return shuffled.slice(0, n);
+  const results = [];
+  const weights = pool.map(card => rarityWeights[card.rarity] || 1);
+  while (results.length < n) {
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
+    let rand = Math.random() * totalWeight;
+    for (let i = 0; i < pool.length; i++) {
+      rand -= weights[i];
+      if (rand <= 0) {
+        results.push(pool[i]);
+        break;
+      }
+    }
+  }
+  return results;
 }
 
 function startBattlePhase() {
@@ -528,11 +549,13 @@ function enemyTurn() {
 }
 
 function checkBattleState() {
+  const nextFloorBtn = document.getElementById("next-floor-button");
   if (enemy.hp <= 0) {
-    document.getElementById("end-turn-button").style.display = "none";
-    addLogEntry(`敵を倒した！`);
-    showRewardSelection();  // ✅ 報酬選択を表示
-    return;                 // ✅ 自動で進まないように return で止める
+    if (nextFloorBtn && (nextFloorBtn.style.display === "none" || nextFloorBtn.style.display === "")) {
+      addLogEntry("敵を倒した！");
+      showRewardSelection();
+    }
+    return;
   }
   if (player.hp <= 0) {
     alert("ゲームオーバー！");
