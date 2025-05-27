@@ -499,9 +499,9 @@ function enemyTurn() {
 
 function checkBattleState() {
   if (enemy.hp <= 0) {
-    const log = document.getElementById("log");
     addLogEntry(`敵を倒した！`);
-    nextFloor();
+    showRewardSelection();  // ✅ 報酬選択を表示
+    return;                 // ✅ 自動で進まないように return で止める
   }
 
   if (player.hp <= 0) {
