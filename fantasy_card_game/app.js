@@ -308,7 +308,7 @@ function startBattlePhase() {
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
 
-  // 🔄 重複防止：直接HTMLを置き換える（前のキャラ消える）
+  // キャラクター再表示や初期UI処理
   document.getElementById("battle-area").innerHTML = `
     <div class="character-wrapper">
       <img src="images/player.png" alt="プレイヤー" id="player-character">
@@ -321,6 +321,9 @@ function startBattlePhase() {
   updateBossArt();
   applyPlayerStatusEffects();
 
+  player.mana = 3; // プレイヤーのマナをリセット
+  player.shield = 0; // プレイヤーのシールドをリセット
+
   enemy = {
     hp: 20 + floor * 5,
     attack: 4 + floor,
@@ -329,6 +332,7 @@ function startBattlePhase() {
   drawHand();
   updateBattleStatus();
   updateDiscardPileDisplay();
+  addLogEntry("バトルフェーズ開始！");
 
   document.getElementById("end-turn-button").addEventListener("click", () => {
     endPlayerTurn();
