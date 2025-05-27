@@ -110,7 +110,17 @@ function advanceToNextFloor() {
   floor++;
   document.getElementById("reward-area").style.display = "none";
   document.getElementById("next-floor-button").style.display = "none";
+  updateBossArt();
   startBattlePhase();
+}
+
+// ボスの種類の処理
+function updateBossArt() {
+  const bossImage = document.getElementById("boss-character");
+  if (bossImage) {
+    const index = ((floor - 1) % 5) + 1; // boss1.png ~ boss5.png まで繰り返す
+    bossImage.src = `images/boss${index}.png`;
+  }
 }
 
 function applyEnemyStatusEffects() {
