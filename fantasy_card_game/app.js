@@ -27,6 +27,25 @@ let enemyStatus = {
   stunned: false
 };
 
+// キャラクター画像の表示処理
+function showCharacters() {
+  const battleArea = document.getElementById("battle-area");
+  if (!battleArea) return;
+
+  const playerImg = document.createElement("img");
+  playerImg.src = "./images/player.png";
+  playerImg.alt = "プレイヤー";
+  playerImg.id = "player-character";
+
+  const bossImg = document.createElement("img");
+  bossImg.src = "./images/boss.png";
+  bossImg.alt = "ボス";
+  bossImg.id = "boss-character";
+
+  battleArea.appendChild(playerImg);
+  battleArea.appendChild(bossImg);
+}
+
 // JSONデータを取得して初期化
 document.addEventListener("DOMContentLoaded", () => {
   fetch(API_URL)
@@ -104,7 +123,7 @@ function getRandomCards(n, pool) {
 function startBattlePhase() {
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
-
+  showCharacters();
   drawHand();
   updateBattleStatus();
 
