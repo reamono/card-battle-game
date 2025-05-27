@@ -283,6 +283,19 @@ function getRandomCards(n, pool) {
 function startBattlePhase() {
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
+  document.getElementById("battle-area").innerHTML = `
+  <div class="character-wrapper">
+    <img src="images/player.png" alt="プレイヤー" id="player-character">
+  </div>
+  <div class="character-wrapper">
+    <img src="images/boss${index}.png" alt="ボス" id="boss-character">
+  </div>
+  `;
+  enemy = {
+  hp: 20 + floor * 5,  // 階層に応じて強化
+  attack: 4 + floor,   // 攻撃力も強化
+  };
+
   showCharacters();
   applyPlayerStatusEffects(); // 状態異常処理（自分）
   drawHand();
@@ -506,6 +519,7 @@ function enemyTurn() {
 
 function checkBattleState() {
   if (enemy.hp <= 0) {
+    document.getElementById("end-turn-button").style.display = "none";
     addLogEntry(`敵を倒した！`);
     showRewardSelection();  // ✅ 報酬選択を表示
     return;                 // ✅ 自動で進まないように return で止める
