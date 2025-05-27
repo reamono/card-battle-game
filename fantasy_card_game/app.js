@@ -330,7 +330,7 @@ function startBattlePhase() {
   updateBattleStatus();
   updateDiscardPileDisplay();
 
-  document.getElementById("end-turn").addEventListener("click", () => {
+  document.getElementById("end-turn-button").addEventListener("click", () => {
     endPlayerTurn();
     enemyTurn();
   });
