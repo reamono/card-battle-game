@@ -27,24 +27,64 @@ let enemyStatus = {
   stunned: false
 };
 
-function executeEffect(effectStr) {
-  const match = effectStr.match(/(\w+)\(([^)]*)\)/);
-  if (!match) return;
-  const func = match[1];
-  const arg = parseFloat(match[2]);
-
-  const effectFuncs = {
-    damageEnemy: val => enemy.hp -= val,
-    heal: val => player.hp = Math.min(player.hp + val, 30),
-    shield: val => player.shield += val,
-    selfDamage: val => applySelfDamage(val),
-    stunEnemy: () => enemyStatus.stunned = true,
-    manaBoost: val => player.mana += val
-  };
-
-  if (effectFuncs[func]) {
-    effectFuncs[func](arg);
+function applyStatusEffects() {
+  if (playerStatus.poisoned > 0) {
+    player.hp -= 2;
+    playerStatus.poisoned--;
+    addLogEntry("プレイヤーは毒で2ダメージを受けた！");
   }
+  if (playerStatus.burned > 0) {
+    player.hp -= 3;
+    playerStatus.burned--;
+    addLogEntry("プレイヤーは火傷で3ダメージを受けた！");
+  }
+  if (enemyStatus.poisoned > 0) {
+    enemy.hp -= 2;
+    enemyStatus.poisoned--;
+    addLogEntry("敵は毒で2ダメージを受けた！");
+  }
+  if (enemyStatus.burned > 0) {
+    enemy.hp -= 3;
+    enemyStatus.burned--;
+    addLogEntry("敵は火傷で3ダメージを受けた！");
+  }
+}
+
+// カードの特殊効果実装
+function executeEffect(effectStr) {
+  const effects = effectStr.split(";");
+  effects.forEach(eff => {
+    const match = eff.match(/(\w+)\(([^)]*)\)/);
+    if (!match) return;
+    const func = match[1];
+    const arg = parseFloat(match[2]);
+
+    const effectFuncs = {
+      damageEnemy: val => enemy.hp -= val,
+      heal: val => player.hp = Math.min(player.hp + val, 30),
+      shield: val => player.shield += val,
+      selfDamage: val => player.hp -= val,
+      stunEnemy: () => enemyStatus.stunned = true,
+      manaBoost: val => player.mana += val,
+      poisonEnemy: turns => enemyStatus.poisoned = turns,
+      burnEnemy: turns => enemyStatus.burned = turns,
+      poisonSelf: turns => playerStatus.poisoned = turns,
+      burnSelf: turns => playerStatus.burned = turns,
+      multiHit: times => {
+        for (let i = 0; i < times; i++) {
+          enemy.hp -= 2;
+          addLogEntry(`連撃 ${i + 1}発目で2ダメージ`);
+        }
+      },
+      buffAttack: turns => playerStatus.attackBoost = turns,
+      debuffEnemyAttack: turns => enemyStatus.attackDown = turns,
+      nextCardFree: () => playerStatus.nextCardFree = true
+    };
+
+    if (effectFuncs[func]) {
+      effectFuncs[func](arg);
+    }
+  });
 }
 
 // キャラクター画像の表示処理
