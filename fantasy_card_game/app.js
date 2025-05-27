@@ -88,16 +88,16 @@ function applyPlayerStatusEffects() {
   }
 }
 
-function getRandomCards(n) {
+function getRandomCards(n, pool) {
   const results = [];
-  const weights = cardPool.map(card => rarityWeights[card.rarity] || 1);
+  const weights = pool.map(card => rarityWeights[card.rarity] || 1);
   while (results.length < n) {
     const totalWeight = weights.reduce((a, b) => a + b, 0);
     let rand = Math.random() * totalWeight;
-    for (let i = 0; i < cardPool.length; i++) {
+    for (let i = 0; i < pool.length; i++) {
       rand -= weights[i];
       if (rand <= 0) {
-        results.push(cardPool[i]);
+        results.push(pool[i]);
         break;
       }
     }
@@ -503,7 +503,6 @@ function checkBattleState() {
     showRewardSelection();  // ✅ 報酬選択を表示
     return;                 // ✅ 自動で進まないように return で止める
   }
-
   if (player.hp <= 0) {
     alert("ゲームオーバー！");
     location.reload();
