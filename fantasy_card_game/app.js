@@ -326,7 +326,7 @@ function playCard(card) {
     executeEffect(card.effect);
   }
   player.mana -= card.cost;
-  nimateCharacter(card);
+  animateCharacter(card);
   if (card.type === "攻撃") showEffect("attack");
   else if (card.type === "回復") showEffect("heal");
   else if (card.type === "防御") showEffect("defense");
