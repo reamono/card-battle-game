@@ -47,12 +47,19 @@ let enemyStatus = {
 function showRewardSelection() {
   const rewardArea = document.getElementById("reward-area");
   rewardArea.innerHTML = "<h3>報酬カードを1枚選んでください</h3>";
-  const choices = getRandomCards(3);
+
+  if (!Array.isArray(cardPool) || cardPool.length === 0) {
+    rewardArea.innerHTML = "<p>カードデータの読み込みに失敗しました。</p>";
+    console.error("cardPool が空、または無効です。");
+    return;
+  }
+
+  const choices = getRandomCards(3, cardPool);
   pendingRewards = choices;
 
   choices.forEach(card => {
     const cardElem = document.createElement("div");
-    cardElem.className = "card";
+    cardElem.className = "card reward-card";
     cardElem.innerHTML = `
       <h4>${card.name}</h4>
       <p>${card.description}</p>
