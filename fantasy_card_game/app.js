@@ -323,6 +323,8 @@ document.addEventListener("DOMContentLoaded", () => {
       // showDeckChoices(); ← 初期表示では呼び出さない
       document.getElementById("start-battle").addEventListener("click", () => {
         document.getElementById("start-battle").style.display = "none";
+        document.getElementById("go-gacha").style.display = "none";
+        document.getElementById("open-collection").style.display = "none";
         document.getElementById("deck-builder").style.display = "block";
         showDeckChoices();
       });
