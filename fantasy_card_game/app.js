@@ -768,6 +768,19 @@ function triggerRandomEvent() {
   }, 1000);
 }
 
+// ガチャ画面
+document.addEventListener("DOMContentLoaded", () => {
+  const goGachaButton = document.getElementById("go-gacha");
+  if (goGachaButton) {
+    goGachaButton.addEventListener("click", () => {
+      document.getElementById("deck-builder").style.display = "none";
+      document.getElementById("battle-screen").style.display = "none";
+      document.getElementById("gacha-area").style.display = "block";
+      document.getElementById("start-battle").style.display = "none";
+      document.getElementById("go-gacha").style.display = "none";
+    });
+  }
+});
 document.getElementById("gacha-button").addEventListener("click", () => {
   const resultArea = document.getElementById("gacha-result");
   resultArea.innerHTML = "";
