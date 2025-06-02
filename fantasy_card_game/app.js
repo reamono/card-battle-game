@@ -130,7 +130,8 @@ function advanceToNextFloor() {
   const nextFloorBtn = document.getElementById("next-floor-button");
   if (rewardArea) rewardArea.style.display = "none";
   if (nextFloorBtn) nextFloorBtn.style.display = "none";
-  startBattlePhase();
+
+  showPathSelection(); // ← 直接バトルへ行かず分岐画面へ
 }
 
 // ボスの種類の処理
