@@ -315,8 +315,9 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.json())
     .then(data => {
       cardPool = data;
-      initialCardPool = cardPool.filter(card => card.initial === "TRUE");
-      gachaCardPool = cardPool.filter(card => card.initial !== "TRUE");
+      initialCardPool = cardPool.filter(card => String(card.initial).toUpperCase() === "TRUE");
+      gachaCardPool = cardPool.filter(card => String(card.initial).toUpperCase() !== "TRUE");
+      console.log("initialCardPool:", initialCardPool); // 中身を確認
       // 初期所持カードを追加
       playerOwnedCards = [...initialCardPool];
       // showDeckChoices(); ← 初期表示では呼び出さない
@@ -373,6 +374,10 @@ function showDeckChoices() {
   choiceArea.innerHTML = "";
   const random3 = getWeightedRandomCards(3, initialCardPool);　// 初期カードから選択
 
+  if (random3.length === 0) {
+    console.warn("初期カードが0枚のため、デッキ構築できません。initialCardPool:", initialCardPool);
+    return;
+  }
   random3.forEach(card => {
     const cardElem = document.createElement("div");
     const rarityClass = getRarityClass(card.rarity);
