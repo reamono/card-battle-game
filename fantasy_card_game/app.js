@@ -768,6 +768,29 @@ function triggerRandomEvent() {
   }, 1000);
 }
 
+document.getElementById("gacha-button").addEventListener("click", () => {
+  const resultArea = document.getElementById("gacha-result");
+  resultArea.innerHTML = "";
+
+  const drawn = getRandomCards(3, cardPool); // 3枚排出（rarityWeights考慮）
+  drawn.forEach(card => {
+    const cardElem = document.createElement("div");
+    cardElem.className = `card ${getRarityClass(card.rarity)}`;
+    cardElem.innerHTML = `
+      <h3>${card.name}</h3>
+      <p>${card.description}</p>
+      <p>マナ: ${card.cost}</p>
+      <p class="rarity">${card.rarity}</p>
+    `;
+    resultArea.appendChild(cardElem);
+  });
+});
+
+document.getElementById("back-to-menu").addEventListener("click", () => {
+  document.getElementById("gacha-area").style.display = "none";
+  document.getElementById("start-battle").style.display = "block";
+});
+
 window.addEventListener("DOMContentLoaded", () => {
   fetch(API_URL)
     .then(res => res.json())
