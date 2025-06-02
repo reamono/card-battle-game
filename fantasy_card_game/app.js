@@ -55,6 +55,11 @@ function showRewardSelection() {
     return;
   }
 
+  // カード表示＆操作を一時無効化
+  handArea.innerHTML = "";
+  endTurnBtn.style.display = "none";
+
+  // 報酬カードのUI
   rewardArea.innerHTML = "<h3>報酬カードを1枚選んでください</h3>";
 
   if (!Array.isArray(cardPool) || cardPool.length === 0) {
@@ -657,10 +662,33 @@ function showPathSelection() {
         addLogEntry("休憩してHPが10回復した！");
         startBattlePhase();
       } else if (choice === "event") {
-        triggerRandomEvent(); // 次フェーズで実装
+        triggerRandomEvent();
       }
     };
   });
+}
+
+function triggerRandomEvent() {
+  const eventTypes = ["treasure", "trap", "merchant"];
+  const selectedEvent = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+
+  if (selectedEvent === "treasure") {
+    const healed = Math.floor(Math.random() * 6) + 5; // 5〜10
+    player.hp = Math.min(player.hp + healed, MAX_HP);
+    addLogEntry(`宝箱を見つけた！HPが${healed}回復した！`);
+  } else if (selectedEvent === "trap") {
+    const damage = Math.floor(Math.random() * 6) + 3; // 3〜8
+    player.hp = Math.max(player.hp - damage, 0);
+    addLogEntry(`罠にかかった！HPが${damage}減少した…`);
+  } else if (selectedEvent === "merchant") {
+    const choice = getRandomCards(1, cardPool)[0];
+    playerDeck.push(choice);
+    addLogEntry(`旅商人と出会った。「${choice.name}」のカードを手に入れた！`);
+  }
+
+  setTimeout(() => {
+    startBattlePhase();
+  }, 1000);
 }
 
 window.addEventListener("DOMContentLoaded", () => {
