@@ -49,6 +49,7 @@ function showRewardSelection() {
   const rewardArea = document.getElementById("reward-area");
   const nextFloorBtn = document.getElementById("next-floor-button");
   const endTurnBtn = document.getElementById("end-turn-button");
+  const handArea = document.getElementById("hand-container");
 
   if (!rewardArea || !nextFloorBtn || !endTurnBtn) {
     console.error("必要なDOM要素が見つかりません。");
