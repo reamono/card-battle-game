@@ -179,3 +179,20 @@ button {
   100% { filter: brightness(1); }
 }
 
+#path-selection {
+  text-align: center;
+  margin: 20px;
+}
+
+.path-options {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.path-btn {
+  padding: 10px 20px;
+  font-size: 1.1em;
+  cursor: pointer;
+}
