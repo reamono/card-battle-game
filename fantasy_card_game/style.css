@@ -65,10 +65,23 @@ body {
 }
 
 button {
-  font-size: 1rem;
-  padding: 12px 20px;
+  font-size: 1.1rem;
+  padding: 12px 24px;
   margin-top: 10px;
-  min-width: 120px;
+  min-width: 140px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4e9af1, #3169d1);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #6fb9ff, #467be7);
+  box-shadow: 0 6px 10px rgba(0,0,0,0.4);
+  transform: translateY(-2px);
 }
 
 .card-effect {
@@ -195,4 +208,33 @@ button {
   padding: 10px 20px;
   font-size: 1.1em;
   cursor: pointer;
+}
+
+.status-icon {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  margin: 2px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.7);
+}
+
+.btn-end-turn {
+  background: linear-gradient(135deg, #e0674a, #b13e2e);
+}
+
+.btn-end-turn:hover {
+  background: linear-gradient(135deg, #f07d61, #c6513f);
+}
+
+.btn-next-floor {
+  background: linear-gradient(135deg, #3cc18e, #299d6c);
+}
+
+.btn-next-floor:hover {
+  background: linear-gradient(135deg, #5ce1ad, #35bb85);
 }
