@@ -4,8 +4,10 @@ const API_URL = 'https://script.google.com/macros/s/AKfycbwmrF3D7q_pO8up68oFgOhK
 // === レアリティ別の出現確率設定 ===
 const rarityWeights = {
   '★': 60,
-  '★★': 30,
-  '★★★': 10
+  '★★': 25,
+  '★★★': 10,
+  '★★★★': 4,
+  '★★★★★': 1
 };
 
 const MAX_HP = 30;
@@ -44,6 +46,58 @@ let enemyStatus = {
   burned: 0,
   attackDown: 0
 };
+
+// === エフェクト処理 ===
+function reflectNext() {
+  playerStatus.reflectNext = true;
+  addLogEntry("次の敵の攻撃を反射する！");
+}
+
+function buffAttack(amount, turns = 2) {
+  playerStatus.attackBoost = amount;
+  playerStatus.attackBoostTurns = turns;
+  addLogEntry(`次の${turns}ターン、自分の攻撃力が${amount}上がる！`);
+}
+
+function multiHit(times) {
+  for (let i = 0; i < times; i++) {
+    dealDamage(2); // 基本2ダメージの連打
+  }
+  addLogEntry(`連続攻撃で${times * 2}ダメージを与えた！`);
+}
+
+function nextCardFree() {
+  playerStatus.nextCardFree = true;
+  addLogEntry("次のカードのマナコストが無料になる！");
+}
+
+function applyAttackBoost(baseDamage) {
+  if (playerStatus.attackBoost > 0) {
+    baseDamage += playerStatus.attackBoost;
+    playerStatus.attackBoostTurns--;
+    if (playerStatus.attackBoostTurns <= 0) {
+      playerStatus.attackBoost = 0;
+    }
+  }
+  return baseDamage;
+}
+
+// === 通常のダメージ処理に反映例 ===
+function dealDamage(baseDamage) {
+  const damage = applyAttackBoost(baseDamage);
+  if (enemy.shield && enemy.shield > 0) {
+    enemy.shield -= damage;
+    if (enemy.shield < 0) {
+      enemy.hp += enemy.shield; // 超過分ダメージ
+      enemy.shield = 0;
+    }
+  } else {
+    enemy.hp -= damage;
+  }
+  addLogEntry(`敵に${damage}のダメージを与えた！`);
+  updateUI();
+  checkBattleState();
+}
 
 function showRewardSelection() {
   const rewardArea = document.getElementById("reward-area");
@@ -633,7 +687,7 @@ function updateDiscardPileDisplay() {
     cardElem.className = `card small ${getRarityClass(card.rarity)}`;
     cardElem.innerHTML = `
       <h4>${card.name}</h4>
-      <p>${card.effect}</p>
+      <p>${card.description}</p>
     `;
     discardList.appendChild(cardElem);
   });
