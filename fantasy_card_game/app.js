@@ -841,16 +841,3 @@ document.getElementById("back-to-menu").addEventListener("click", () => {
   document.getElementById("gacha-area").style.display = "none";
   document.getElementById("start-battle").style.display = "block";
 });
-
-window.addEventListener("DOMContentLoaded", () => {
-  fetch(API_URL)
-    .then(res => res.json())
-    .then(data => {
-      cardPool = data;
-      document.getElementById("start-battle").addEventListener("click", () => {
-        document.getElementById("start-battle").style.display = "none";
-        document.getElementById("deck-builder").style.display = "block";
-        showDeckChoices();
-      });
-    });
-});
