@@ -15,6 +15,7 @@ const MAX_HP = 30;
 let cardPool = [];         // 全カードデータ
 let initialCardPool = []; // 初期カード用（initial=true）
 let gachaCardPool = []; // ガチャ用（initial=false）
+let playerOwnedCards = []; // 所持カード（図鑑や管理用）
 let playerDeck = [];       // 山札
 let discardPile = [];      // 捨て札
 let currentHand = [];      // 現在の手札
@@ -316,12 +317,41 @@ document.addEventListener("DOMContentLoaded", () => {
       cardPool = data;
       initialCardPool = cardPool.filter(card => card.initial === "TRUE");
       gachaCardPool = cardPool.filter(card => card.initial !== "TRUE");
+      // 初期所持カードを追加
+      playerOwnedCards = [...initialCardPool];
       // showDeckChoices(); ← 初期表示では呼び出さない
       document.getElementById("start-battle").addEventListener("click", () => {
         document.getElementById("start-battle").style.display = "none";
         document.getElementById("deck-builder").style.display = "block";
         showDeckChoices();
       });
+      // 図鑑ボタンイベント
+      const collectionBtn = document.getElementById("open-collection");
+      if (collectionBtn) {
+        collectionBtn.addEventListener("click", () => {
+          const collectionArea = document.getElementById("collection-book");
+          collectionArea.innerHTML = "";
+          cardPool.forEach(card => {
+            const owned = playerOwnedCards.some(c => c.id === card.id);
+            const cardElem = document.createElement("div");
+            cardElem.className = `card ${getRarityClass(card.rarity)}`;
+            cardElem.innerHTML = owned
+              ? `<h3>${card.name}</h3><p>${card.description}</p><p>マナ: ${card.cost}</p><p class="rarity">${card.rarity}</p>`
+              : `<h3>？？？</h3><p>？？？</p><p>マナ: ？</p><p class="rarity">${card.rarity}</p>`;
+            collectionArea.appendChild(cardElem);
+          });
+          collectionArea.style.display = "block";
+          document.getElementById("close-collection").style.display = "inline-block";
+        });
+      }
+      // 図鑑を閉じるボタン
+      const closeBtn = document.getElementById("close-collection");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+          document.getElementById("collection-book").style.display = "none";
+          closeBtn.style.display = "none";
+        });
+      }
     });
 });
 
@@ -800,6 +830,9 @@ if (gachaButton) {
         <p class="rarity">${card.rarity}</p>
       `;
       resultArea.appendChild(cardElem);
+      if (!playerOwnedCards.some(c => c.id === card.id)) {
+        playerOwnedCards.push(card);
+      }
     });
   });
 }
