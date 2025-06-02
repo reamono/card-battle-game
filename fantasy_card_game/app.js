@@ -47,16 +47,34 @@ let enemyStatus = {
   attackDown: 0
 };
 
+// === 状態アイコンの表示 ===
+function updateStatusIcons() {
+  const area = document.getElementById("status-icons");
+  if (!area) return;
+  area.innerHTML = "";
+
+  const icons = [];
+  if (playerStatus.reflectNext) icons.push("🪞 反射");
+  if (playerStatus.attackBoost > 0) icons.push(`⚔️ 攻+${playerStatus.attackBoost}`);
+  if (playerStatus.poisoned > 0) icons.push(`☠️ 毒(${playerStatus.poisoned})`);
+  if (playerStatus.burned > 0) icons.push(`🔥 火傷(${playerStatus.burned})`);
+  if (playerStatus.nextCardFree) icons.push("💫 無料");
+
+  area.innerHTML = icons.map(txt => `<span class="status-icon">${txt}</span>`).join(" ");
+}
+
 // === エフェクト処理 ===
 function reflectNext() {
   playerStatus.reflectNext = true;
   addLogEntry("次の敵の攻撃を反射する！");
+  updateStatusIcons();
 }
 
 function buffAttack(amount, turns = 2) {
   playerStatus.attackBoost = amount;
   playerStatus.attackBoostTurns = turns;
   addLogEntry(`次の${turns}ターン、自分の攻撃力が${amount}上がる！`);
+  updateStatusIcons();
 }
 
 function multiHit(times) {
@@ -69,6 +87,7 @@ function multiHit(times) {
 function nextCardFree() {
   playerStatus.nextCardFree = true;
   addLogEntry("次のカードのマナコストが無料になる！");
+  updateStatusIcons();
 }
 
 function applyAttackBoost(baseDamage) {
@@ -78,6 +97,7 @@ function applyAttackBoost(baseDamage) {
     if (playerStatus.attackBoostTurns <= 0) {
       playerStatus.attackBoost = 0;
     }
+    updateStatusIcons();
   }
   return baseDamage;
 }
