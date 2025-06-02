@@ -37,15 +37,14 @@
     <button id="back-to-menu">メニューに戻る</button>
   </div>
 
-
   <div id="deck-builder" style="display: block;">
-    <h2>デッキ構築（10枚選んでください）</h2>
+    <h3>デッキ構築（10枚選んでください）</h3>
     <div id="deck-choice" class="card-grid"></div>
     <p>選択済み: <span id="deck-count">0</span>/10</p>
   </div>
 
   <div id="battle-screen" style="display: none;">
-    <h2>バトルフェーズ - <span id="floor">1</span>階</h2>
+    <h4>バトルフェーズ - <span id="floor">1</span>階</h4>
     <div>
       <p>自分のHP: <span id="player-hp">30</span> | マナ: <span id="player-mana">3</span> | シールド: <span id="player-shield">0</span></p>
       <p>敵のHP: <span id="enemy-hp">20</span></p>
@@ -65,7 +64,7 @@
   <button id="next-floor-button" style="display:none;" onclick="advanceToNextFloor()">次の階層へ</button>
 
   <div id="path-selection" style="display: none;">
-    <h3>次に進む道を選んでください</h3>
+    <h5>次に進む道を選んでください</h5>
     <div class="path-options">
       <button class="path-btn" data-type="battle">戦闘</button>
       <button class="path-btn" data-type="rest">休憩</button>
