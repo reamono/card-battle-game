@@ -56,6 +56,15 @@
   <div id="reward-area" style="display:none;"></div>
   <button id="next-floor-button" style="display:none;" onclick="advanceToNextFloor()">次の階層へ</button>
 
+  <div id="path-selection" style="display: none;">
+    <h3>次に進む道を選んでください</h3>
+    <div class="path-options">
+      <button class="path-btn" data-type="battle">戦闘</button>
+      <button class="path-btn" data-type="rest">休憩</button>
+      <button class="path-btn" data-type="event">イベント</button>
+    </div>
+  </div>
+
   <script src="app.js"></script>
   <script>
     const logElement = document.getElementById("log");
