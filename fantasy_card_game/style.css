@@ -264,3 +264,26 @@ button:hover {
 .bnext-floor-button:hover {
   background: linear-gradient(135deg, #5ce1ad, #35bb85);
 }
+
+#gacha-area {
+  padding: 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  margin: 20px auto;
+  max-width: 700px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+}
+
+#gacha-result {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+.back-button {
+  margin-top: 20px;
+  background: #aaa;
+}
