@@ -13,6 +13,8 @@ const rarityWeights = {
 const MAX_HP = 30;
 
 let cardPool = [];         // 全カードデータ
+let initialCardPool = []; // 初期カード用（initial=true）
+let gachaCardPool = []; // ガチャ用（initial=false）
 let playerDeck = [];       // 山札
 let discardPile = [];      // 捨て札
 let currentHand = [];      // 現在の手札
@@ -312,6 +314,8 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.json())
     .then(data => {
       cardPool = data;
+      initialCardPool = cardPool.filter(card => card.initial === "TRUE");
+      gachaCardPool = cardPool.filter(card => card.initial !== "TRUE");
       // showDeckChoices(); ← 初期表示では呼び出さない
       document.getElementById("start-battle").addEventListener("click", () => {
         document.getElementById("start-battle").style.display = "none";
@@ -337,8 +341,7 @@ function getWeightedRandomCards(n, pool) {
 function showDeckChoices() {
   const choiceArea = document.getElementById("deck-choice");
   choiceArea.innerHTML = "";
-
-  const random3 = getWeightedRandomCards(3, cardPool);
+  const random3 = getWeightedRandomCards(3, initialCardPool);　// 初期カードから選択
 
   random3.forEach(card => {
     const cardElem = document.createElement("div");
@@ -781,23 +784,25 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-document.getElementById("gacha-button").addEventListener("click", () => {
-  const resultArea = document.getElementById("gacha-result");
-  resultArea.innerHTML = "";
-
-  const drawn = getRandomCards(3, cardPool); // 3枚排出（rarityWeights考慮）
-  drawn.forEach(card => {
-    const cardElem = document.createElement("div");
-    cardElem.className = `card ${getRarityClass(card.rarity)}`;
-    cardElem.innerHTML = `
-      <h3>${card.name}</h3>
-      <p>${card.description}</p>
-      <p>マナ: ${card.cost}</p>
-      <p class="rarity">${card.rarity}</p>
-    `;
-    resultArea.appendChild(cardElem);
+const gachaButton = document.getElementById("gacha-button");
+if (gachaButton) {
+  gachaButton.addEventListener("click", () => {
+    const resultArea = document.getElementById("gacha-result");
+    resultArea.innerHTML = "";
+    const drawn = getWeightedRandomCards(3, gachaCardPool);
+    drawn.forEach(card => {
+      const cardElem = document.createElement("div");
+      cardElem.className = `card ${getRarityClass(card.rarity)}`;
+      cardElem.innerHTML = `
+        <h3>${card.name}</h3>
+        <p>${card.description}</p>
+        <p>マナ: ${card.cost}</p>
+        <p class="rarity">${card.rarity}</p>
+      `;
+      resultArea.appendChild(cardElem);
+    });
   });
-});
+}
 
 document.getElementById("back-to-menu").addEventListener("click", () => {
   document.getElementById("gacha-area").style.display = "none";
