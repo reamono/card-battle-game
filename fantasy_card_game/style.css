@@ -49,19 +49,45 @@ body {
   background: #e0f0ff;
 }
 
+/* レアリティ別色彩 + 光沢感 */
 .rarity-common {
-  background-color: rgba(0, 0, 0, 0.6);
-  border: 1px solid #ccc;
+  background: linear-gradient(135deg, #f0f0f0, #dcdcdc);
+  color: #333;
+  border: 1px solid #aaa;
 }
 
 .rarity-rare {
-  background-color: rgba(30, 144, 255, 0.4);
-  border: 2px solid #1e90ff;
+  background: linear-gradient(135deg, #87cefa, #4682b4);
+  color: #fff;
+  border: 1px solid #1e90ff;
 }
 
 .rarity-epic {
-  background-color: rgba(148, 0, 211, 0.4);
-  border: 2px solid #9400d3;
+  background: linear-gradient(135deg, #b19cd9, #7b68ee);
+  color: #fff;
+  border: 1px solid #8a2be2;
+}
+
+.rarity-legendary {
+  background: linear-gradient(135deg, #ffdd57, #ff9900);
+  color: #fff;
+  border: 1px solid #e69a00;
+  box-shadow: 0 0 10px 3px rgba(255, 170, 0, 0.5);
+}
+
+.rarity-mythic {
+  background: linear-gradient(135deg, #ff66cc, #cc00ff);
+  color: #fff;
+  border: 1px solid #c71585;
+  box-shadow: 0 0 12px 4px rgba(255, 20, 147, 0.6);
+  animation: mythic-glow 3s ease-in-out infinite;
+}
+
+/* ★5だけアニメーション付きの光り方 */
+@keyframes mythic-glow {
+  0% { box-shadow: 0 0 12px 3px rgba(255, 20, 147, 0.5); }
+  50% { box-shadow: 0 0 20px 6px rgba(255, 20, 147, 0.8); }
+  100% { box-shadow: 0 0 12px 3px rgba(255, 20, 147, 0.5); }
 }
 
 button {
