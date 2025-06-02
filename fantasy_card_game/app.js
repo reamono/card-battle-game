@@ -639,6 +639,29 @@ function updateDiscardPileDisplay() {
   });
 }
 
+// 選択肢の分岐処理
+function showPathSelection() {
+  const pathArea = document.getElementById("path-selection");
+  pathArea.style.display = "block";
+
+  document.querySelectorAll(".path-btn").forEach(btn => {
+    btn.onclick = () => {
+      const choice = btn.dataset.type;
+      pathArea.style.display = "none";
+
+      if (choice === "battle") {
+        startBattlePhase();
+      } else if (choice === "rest") {
+        player.hp = Math.min(player.hp + 10, MAX_HP);
+        addLogEntry("休憩してHPが10回復した！");
+        startBattlePhase();
+      } else if (choice === "event") {
+        triggerRandomEvent(); // 次フェーズで実装
+      }
+    };
+  });
+}
+
 window.addEventListener("DOMContentLoaded", () => {
   fetch(API_URL)
     .then(res => res.json())
