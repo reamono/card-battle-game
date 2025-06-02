@@ -676,6 +676,8 @@ function getRarityClass(rarity) {
     case '★': return 'rarity-common';
     case '★★': return 'rarity-rare';
     case '★★★': return 'rarity-epic';
+    case '★★★★': return 'rarity-legendary';
+    case '★★★★★': return 'rarity-mythic';
     default: return 'rarity-common';
   }
 }
