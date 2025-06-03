@@ -85,6 +85,16 @@ document.addEventListener("DOMContentLoaded", () => {
           });
           collectionArea.style.display = "block";
           document.getElementById("close-collection").style.display = "inline-block";
+          document.getElementById("main-title").style.display = "none";
+          document.getElementById("deck-builder").style.display = "none";
+          document.getElementById("battle-screen").style.display = "none";
+          document.getElementById("gacha-area").style.display = "none";
+          document.getElementById("start-battle").style.display = "none";
+          document.getElementById("go-gacha").style.display = "none";
+          document.getElementById("load-game").style.display = "none";
+          document.getElementById("save-game").style.display = "none";
+          document.getElementById("return-main").style.display = "block"; 
+          document.getElementById("main-title").style.display = "none";
         });
       }
 
@@ -116,6 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("load-game").style.display = "none";
           document.getElementById("save-game").style.display = "none";
           document.getElementById("return-main").style.display = "block"; 
+          document.getElementById("main-title").style.display = "none";
           document.body.classList.add("gacha-background");
         });
       }
@@ -475,6 +486,7 @@ function getRandomCards(n, pool) {
 
 function startBattlePhase() {
   isInBattle = true;
+  document.getElementById("main-title").style.display = "none";
   document.getElementById("save-game").style.display = "inline-block";
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("load-game").style.display = "none";
@@ -926,6 +938,7 @@ function loadGame() {
 // === メインメニューに戻る処理 ===
 function returnToMainMenu() {
   isInBattle = false;
+  document.getElementById("main-title").style.display = "block"; 
   document.getElementById("battle-screen").style.display = "none";
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("gacha-area").style.display = "none";
