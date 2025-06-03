@@ -115,6 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("open-collection").style.display = "none";
           document.getElementById("load-game").style.display = "none";
           document.getElementById("save-game").style.display = "none";
+          document.getElementById("return-main").style.display = "block"; 
           document.body.classList.add("gacha-background");
         });
       }
@@ -929,6 +930,8 @@ function returnToMainMenu() {
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("gacha-area").style.display = "none";
   document.getElementById("path-selection").style.display = "none";
+  document.getElementById("collection-book").style.display = "none";
+  document.getElementById("close-collection").style.display = "none";
 
   // メインメニュー表示をリセット
   const mainMenu = document.getElementById("main-menu");
@@ -945,7 +948,7 @@ function returnToMainMenu() {
   buttons.forEach(id => {
     const el = document.getElementById(id);
     if (el) {
-      if (id === "save-game") {
+      if (id === "save-game" || id === "return-main") {
         el.style.display = "none";
       } else if (id === "load-game") {
         el.style.display = "inline-block";
