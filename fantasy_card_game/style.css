@@ -287,3 +287,12 @@ button:hover {
   margin-top: 20px;
   background: #aaa;
 }
+
+/* gacha画面用の背景 */
+body.gacha-background {
+  background-image: url("images/gacha-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
