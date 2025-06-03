@@ -355,6 +355,11 @@ document.addEventListener("DOMContentLoaded", () => {
           closeBtn.style.display = "none";
         });
       }
+      // セーブロードボタン
+      const saveBtn = document.getElementById("save-game");
+      const loadBtn = document.getElementById("load-game");
+      if (saveBtn) saveBtn.addEventListener("click", saveGame);
+      if (loadBtn) loadBtn.addEventListener("click", loadGame);
     });
 });
 
@@ -848,3 +853,59 @@ document.getElementById("back-to-menu").addEventListener("click", () => {
   document.getElementById("gacha-area").style.display = "none";
   document.getElementById("start-battle").style.display = "block";
 });
+
+// === セーブ関数（確認ダイアログ付き） ===
+function saveGame() {
+  const confirmed = confirm(
+    "※このゲームの進行状況は端末のブラウザに自動保存されます。\n" +
+    "※同じ端末・ブラウザでのみ再開可能です。\n" +
+    "※プライベートブラウズや履歴削除ではセーブデータが消える可能性があります。\n\n" +
+    "現在の進行状況をセーブしますか？"
+  );
+
+  if (!confirmed) return;
+
+  const saveData = {
+    player,
+    playerStatus,
+    enemy,
+    enemyStatus,
+    floor,
+    playerDeck,
+    discardPile,
+    playerOwnedCards
+  };
+
+  try {
+    localStorage.setItem("gameSave", JSON.stringify(saveData));
+    alert("ゲームを保存しました！");
+  } catch (e) {
+    alert("セーブに失敗しました：" + e.message);
+  }
+}
+
+// === ロード関数 ===
+function loadGame() {
+  const data = localStorage.getItem("gameSave");
+  if (!data) {
+    alert("保存データが見つかりません。\nセーブ後にロードしてください。")
+    return;
+  }
+
+  try {
+    const saveData = JSON.parse(data);
+    player = saveData.player;
+    playerStatus = saveData.playerStatus;
+    enemy = saveData.enemy;
+    enemyStatus = saveData.enemyStatus;
+    floor = saveData.floor;
+    playerDeck = saveData.playerDeck;
+    discardPile = saveData.discardPile;
+    playerOwnedCards = saveData.playerOwnedCards;
+
+    alert("セーブデータを読み込みました！");
+    startBattlePhase(); // 状況に応じて変更可
+  } catch (e) {
+    alert("ロードに失敗しました：" + e.message);
+  }
+}
