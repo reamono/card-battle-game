@@ -58,10 +58,9 @@ document.addEventListener("DOMContentLoaded", () => {
       cardPool = data;
       initialCardPool = cardPool.filter(card => String(card.initial).toUpperCase() === "TRUE");
       gachaCardPool = cardPool.filter(card => String(card.initial).toUpperCase() !== "TRUE");
-      console.log("initialCardPool:", initialCardPool); // 中身を確認
-      // 初期所持カードを追加
+      console.log("initialCardPool:", initialCardPool);
       playerOwnedCards = [...initialCardPool];
-      // showDeckChoices(); ← 初期表示では呼び出さない
+
       document.getElementById("start-battle").addEventListener("click", () => {
         document.getElementById("start-battle").style.display = "none";
         document.getElementById("go-gacha").style.display = "none";
@@ -69,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("deck-builder").style.display = "block";
         showDeckChoices();
       });
-      // 図鑑ボタンイベント
+
       const collectionBtn = document.getElementById("open-collection");
       if (collectionBtn) {
         collectionBtn.addEventListener("click", () => {
@@ -88,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("close-collection").style.display = "inline-block";
         });
       }
-      // 図鑑を閉じるボタン
+
       const closeBtn = document.getElementById("close-collection");
       if (closeBtn) {
         closeBtn.addEventListener("click", () => {
@@ -96,15 +95,52 @@ document.addEventListener("DOMContentLoaded", () => {
           closeBtn.style.display = "none";
         });
       }
-      // セーブロードボタン
+
       const saveBtn = document.getElementById("save-game");
       const loadBtn = document.getElementById("load-game");
-      const returnBtn = document.getElementById("return-main"); // メインメニュー戻るボタン
+      const returnBtn = document.getElementById("return-main");
       if (saveBtn) saveBtn.addEventListener("click", saveGame);
       if (loadBtn) loadBtn.addEventListener("click", loadGame);
       if (returnBtn) returnBtn.addEventListener("click", returnToMainMenu);
-      // 初期表示時にロードボタンを有効に、他画面では非表示にする
-      loadBtn.style.display = "inline-block";
+      if (loadBtn) loadBtn.style.display = "inline-block";
+
+      const goGachaButton = document.getElementById("go-gacha");
+      if (goGachaButton) {
+        goGachaButton.addEventListener("click", () => {
+          document.getElementById("deck-builder").style.display = "none";
+          document.getElementById("battle-screen").style.display = "none";
+          document.getElementById("gacha-area").style.display = "block";
+          document.getElementById("start-battle").style.display = "none";
+          document.getElementById("go-gacha").style.display = "none";
+          document.getElementById("open-collection").style.display = "none";
+          document.getElementById("load-game").style.display = "none";
+          document.getElementById("save-game").style.display = "none";
+          document.body.classList.add("gacha-background");
+        });
+      }
+
+      const gachaButton = document.getElementById("gacha-button");
+      if (gachaButton) {
+        gachaButton.addEventListener("click", () => {
+          const resultArea = document.getElementById("gacha-result");
+          resultArea.innerHTML = "";
+          const drawn = getWeightedRandomCards(3, gachaCardPool);
+          drawn.forEach(card => {
+            const cardElem = document.createElement("div");
+            cardElem.className = `card ${getRarityClass(card.rarity)}`;
+            cardElem.innerHTML = `
+              <h3>${card.name}</h3>
+              <p>${card.description}</p>
+              <p>マナ: ${card.cost}</p>
+              <p class="rarity">${card.rarity}</p>
+            `;
+            resultArea.appendChild(cardElem);
+            if (!playerOwnedCards.some(c => c.id === card.id)) {
+              playerOwnedCards.push(card);
+            }
+          });
+        });
+      }
     });
 });
 
@@ -822,45 +858,6 @@ function triggerRandomEvent() {
   setTimeout(() => {
     startBattlePhase();
   }, 1000);
-}
-
-// ガチャ画面
-document.addEventListener("DOMContentLoaded", () => {
-  const goGachaButton = document.getElementById("go-gacha");
-  if (goGachaButton) {
-    goGachaButton.addEventListener("click", () => {
-      document.getElementById("deck-builder").style.display = "none";
-      document.getElementById("battle-screen").style.display = "none";
-      document.getElementById("gacha-area").style.display = "block";
-      document.getElementById("start-battle").style.display = "none";
-      document.getElementById("go-gacha").style.display = "none";
-      document.getElementById("open-collection").style.display = "none";
-      document.getElementById("load-game").style.display = "none";
-      document.body.classList.add("gacha-background");
-    });
-  }
-});
-const gachaButton = document.getElementById("gacha-button");
-if (gachaButton) {
-  gachaButton.addEventListener("click", () => {
-    const resultArea = document.getElementById("gacha-result");
-    resultArea.innerHTML = "";
-    const drawn = getWeightedRandomCards(3, gachaCardPool);
-    drawn.forEach(card => {
-      const cardElem = document.createElement("div");
-      cardElem.className = `card ${getRarityClass(card.rarity)}`;
-      cardElem.innerHTML = `
-        <h3>${card.name}</h3>
-        <p>${card.description}</p>
-        <p>マナ: ${card.cost}</p>
-        <p class="rarity">${card.rarity}</p>
-      `;
-      resultArea.appendChild(cardElem);
-      if (!playerOwnedCards.some(c => c.id === card.id)) {
-        playerOwnedCards.push(card);
-      }
-    });
-  });
 }
 
 // === セーブ関数（確認ダイアログ付き） ===
