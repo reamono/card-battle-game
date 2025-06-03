@@ -381,6 +381,7 @@ function getWeightedRandomCards(n, pool) {
 
 // デッキ構築用：ランダムに3枚表示
 function showDeckChoices() {
+  document.getElementById("return-main").style.display = "block";
   const choiceArea = document.getElementById("deck-choice");
   choiceArea.innerHTML = "";
   const random3 = getWeightedRandomCards(3, initialCardPool);　// 初期カードから選択
@@ -437,6 +438,7 @@ function getRandomCards(n, pool) {
 function startBattlePhase() {
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
+  document.getElementById("return-main").style.display = "block";
 
   // キャラクター再表示や初期UI処理
   document.getElementById("battle-area").innerHTML = `
