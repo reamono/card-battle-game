@@ -832,6 +832,9 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("gacha-area").style.display = "block";
       document.getElementById("start-battle").style.display = "none";
       document.getElementById("go-gacha").style.display = "none";
+      document.getElementById("open-collection").style.display = "none";
+      document.getElementById("load-game").style.display = "none";
+      document.body.classList.add("gacha-background");
     });
   }
 });
@@ -857,10 +860,13 @@ if (gachaButton) {
     });
   });
 }
-
 document.getElementById("back-to-menu").addEventListener("click", () => {
   document.getElementById("gacha-area").style.display = "none";
   document.getElementById("start-battle").style.display = "block";
+  document.getElementById("go-gacha").style.display = "block";
+  document.getElementById("open-collection").style.display = "block";
+  document.getElementById("load-game").style.display = "inline-block";
+  document.body.classList.remove("gacha-background");
 });
 
 // === セーブ関数（確認ダイアログ付き） ===
@@ -912,8 +918,14 @@ function loadGame() {
     discardPile = saveData.discardPile;
     playerOwnedCards = saveData.playerOwnedCards;
 
+    // メインメニューのUIを全て非表示に
+    document.getElementById("start-battle").style.display = "none";
+    document.getElementById("go-gacha").style.display = "none";
+    document.getElementById("open-collection").style.display = "none";
+    document.getElementById("load-game").style.display = "none";
+
     alert("セーブデータを読み込みました！");
-    startBattlePhase(); // 状況に応じて変更可
+    startBattlePhase();
   } catch (e) {
     alert("ロードに失敗しました：" + e.message);
   }
@@ -925,8 +937,13 @@ function returnToMainMenu() {
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("gacha-area").style.display = "none";
   document.getElementById("path-selection").style.display = "none";
+
+  // メインメニューを縦並びでなく元に戻す
+  document.getElementById("main-menu").style.display = "flex";
   document.getElementById("start-battle").style.display = "block";
   document.getElementById("go-gacha").style.display = "block";
   document.getElementById("open-collection").style.display = "block";
   document.getElementById("load-game").style.display = "inline-block";
+
+  document.body.classList.remove("gacha-background");
 }
