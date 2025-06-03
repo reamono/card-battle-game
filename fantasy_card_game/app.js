@@ -862,14 +862,6 @@ if (gachaButton) {
     });
   });
 }
-document.getElementById("back-to-menu").addEventListener("click", () => {
-  document.getElementById("gacha-area").style.display = "none";
-  document.getElementById("start-battle").style.display = "block";
-  document.getElementById("go-gacha").style.display = "block";
-  document.getElementById("open-collection").style.display = "block";
-  document.getElementById("load-game").style.display = "inline-block";
-  document.body.classList.remove("gacha-background");
-});
 
 // === セーブ関数（確認ダイアログ付き） ===
 function saveGame() {
