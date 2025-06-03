@@ -28,26 +28,25 @@
 <body>
   <h1>カードバトルゲーム</h1>
   <div id="card-container" class="card-grid"></div>
-  <button id="start-battle">バトル開始</button>
-  <button id="go-gacha">ガチャへ</button>
-  <button id="save-game">セーブ</button>
-  <button id="load-game">ロード</button>
-  <!-- メインメニューに戻る -->
-  <button id="return-main" style="display: none;">メインメニューに戻る</button>
+  <div id="main-menu" style="display: flex; flex-direction: column; gap: 10px;">
+    <button id="start-battle">バトル開始</button>
+    <button id="go-gacha">ガチャへ</button>
+    <button id="save-game" style="display: none;">セーブ</button>
+    <button id="load-game">ロード</button>
+    <button id="open-collection">図鑑</button>
+    <button id="return-main" style="display: none;">メインメニューに戻る</button>
+  </div>
 
   <div id="gacha-area" style="display: none;">
     <h2>カードガチャ</h2>
     <button id="gacha-button">ガチャを引く！</button>
     <div id="gacha-result"></div>
-    <button id="back-to-menu">メニューに戻る</button>
+    <button id="back-to-menu">メインメニューに戻る</button>
   </div>
   <div id="collection-book" style="display:none">
     <!-- カード一覧をここに表示 -->
   </div>
-  <button id="open-collection">図鑑</button>
   <button id="close-collection" style="display:none;">閉じる</button>
-
-
 
   <div id="deck-builder" style="display: none;">
     <h3>デッキ構築（10枚選んでください）</h3>
