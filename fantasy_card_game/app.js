@@ -437,6 +437,8 @@ function getRandomCards(n, pool) {
 }
 
 function startBattlePhase() {
+  isInBattle = true;
+  document.getElementById("save-game").style.display = "inline-block";
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("load-game").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
@@ -933,17 +935,36 @@ function loadGame() {
 
 // === メインメニューに戻る処理 ===
 function returnToMainMenu() {
+  isInBattle = false;
   document.getElementById("battle-screen").style.display = "none";
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("gacha-area").style.display = "none";
   document.getElementById("path-selection").style.display = "none";
 
-  // メインメニューを縦並びでなく元に戻す
-  document.getElementById("main-menu").style.display = "flex";
-  document.getElementById("start-battle").style.display = "block";
-  document.getElementById("go-gacha").style.display = "block";
-  document.getElementById("open-collection").style.display = "block";
-  document.getElementById("load-game").style.display = "inline-block";
+  // メインメニュー表示をリセット
+  const mainMenu = document.getElementById("main-menu");
+  if (mainMenu) mainMenu.style.display = "flex";
+
+  const buttons = [
+    "start-battle",
+    "go-gacha",
+    "open-collection",
+    "load-game",
+    "save-game",
+    "return-main"
+  ];
+  buttons.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (id === "save-game") {
+        el.style.display = "none";
+      } else if (id === "load-game") {
+        el.style.display = "inline-block";
+      } else {
+        el.style.display = "block";
+      }
+    }
+  });
 
   document.body.classList.remove("gacha-background");
 }
