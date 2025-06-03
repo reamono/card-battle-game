@@ -26,7 +26,7 @@
   </style>
 </head>
 <body>
-  <h1>カードバトルゲーム</h1>
+  <h1 id="main-title">カードバトルゲーム</h1>
   <div id="card-container" class="card-grid"></div>
   <div id="main-menu" style="display: flex; flex-direction: column; gap: 10px;">
     <button id="start-battle">バトル開始</button>
@@ -37,11 +37,11 @@
     <button id="return-main" style="display: none;">メインメニューに戻る</button>
   </div>
 
-  <div id="gacha-area" style="display: none;">
-    <h2>カードガチャ</h2>
+  <div id="gacha-area">
     <button id="gacha-button">ガチャを引く！</button>
     <div id="gacha-result"></div>
   </div>
+
   <div id="collection-book" style="display:none">
     <!-- カード一覧をここに表示 -->
   </div>
