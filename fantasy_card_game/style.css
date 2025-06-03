@@ -265,22 +265,28 @@ button:hover {
   background: linear-gradient(135deg, #5ce1ad, #35bb85);
 }
 
-#gacha-area {
-  padding: 20px;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.95);
+#gacha-button {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 24px;
+  font-size: 1.2em;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
   border-radius: 12px;
-  margin: 20px auto;
-  max-width: 700px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  cursor: pointer;
+  z-index: 10;
 }
 
 #gacha-result {
   display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 20px;
   flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 100px;
+  gap: 12px;
 }
 
 .back-button {
