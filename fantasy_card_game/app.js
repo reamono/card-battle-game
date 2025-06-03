@@ -50,6 +50,64 @@ let enemyStatus = {
   attackDown: 0
 };
 
+// JSONデータを取得して初期化
+document.addEventListener("DOMContentLoaded", () => {
+  fetch(API_URL)
+    .then(res => res.json())
+    .then(data => {
+      cardPool = data;
+      initialCardPool = cardPool.filter(card => String(card.initial).toUpperCase() === "TRUE");
+      gachaCardPool = cardPool.filter(card => String(card.initial).toUpperCase() !== "TRUE");
+      console.log("initialCardPool:", initialCardPool); // 中身を確認
+      // 初期所持カードを追加
+      playerOwnedCards = [...initialCardPool];
+      // showDeckChoices(); ← 初期表示では呼び出さない
+      document.getElementById("start-battle").addEventListener("click", () => {
+        document.getElementById("start-battle").style.display = "none";
+        document.getElementById("go-gacha").style.display = "none";
+        document.getElementById("open-collection").style.display = "none";
+        document.getElementById("deck-builder").style.display = "block";
+        showDeckChoices();
+      });
+      // 図鑑ボタンイベント
+      const collectionBtn = document.getElementById("open-collection");
+      if (collectionBtn) {
+        collectionBtn.addEventListener("click", () => {
+          const collectionArea = document.getElementById("collection-book");
+          collectionArea.innerHTML = "";
+          cardPool.forEach(card => {
+            const owned = playerOwnedCards.some(c => c.id === card.id);
+            const cardElem = document.createElement("div");
+            cardElem.className = `card ${getRarityClass(card.rarity)}`;
+            cardElem.innerHTML = owned
+              ? `<h3>${card.name}</h3><p>${card.description}</p><p>マナ: ${card.cost}</p><p class="rarity">${card.rarity}</p>`
+              : `<h3>？？？</h3><p>？？？</p><p>マナ: ？</p><p class="rarity">${card.rarity}</p>`;
+            collectionArea.appendChild(cardElem);
+          });
+          collectionArea.style.display = "block";
+          document.getElementById("close-collection").style.display = "inline-block";
+        });
+      }
+      // 図鑑を閉じるボタン
+      const closeBtn = document.getElementById("close-collection");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+          document.getElementById("collection-book").style.display = "none";
+          closeBtn.style.display = "none";
+        });
+      }
+      // セーブロードボタン
+      const saveBtn = document.getElementById("save-game");
+      const loadBtn = document.getElementById("load-game");
+      const returnBtn = document.getElementById("return-main"); // メインメニュー戻るボタン
+      if (saveBtn) saveBtn.addEventListener("click", saveGame);
+      if (loadBtn) loadBtn.addEventListener("click", loadGame);
+      if (returnBtn) returnBtn.addEventListener("click", returnToMainMenu);
+      // 初期表示時にロードボタンを有効に、他画面では非表示にする
+      loadBtn.style.display = "inline-block";
+    });
+});
+
 // === 状態アイコンの表示 ===
 function updateStatusIcons() {
   const area = document.getElementById("status-icons");
@@ -308,60 +366,6 @@ function showCharacters() {
   battleArea.appendChild(playerWrapper);
   battleArea.appendChild(bossWrapper);
 }
-
-// JSONデータを取得して初期化
-document.addEventListener("DOMContentLoaded", () => {
-  fetch(API_URL)
-    .then(res => res.json())
-    .then(data => {
-      cardPool = data;
-      initialCardPool = cardPool.filter(card => String(card.initial).toUpperCase() === "TRUE");
-      gachaCardPool = cardPool.filter(card => String(card.initial).toUpperCase() !== "TRUE");
-      console.log("initialCardPool:", initialCardPool); // 中身を確認
-      // 初期所持カードを追加
-      playerOwnedCards = [...initialCardPool];
-      // showDeckChoices(); ← 初期表示では呼び出さない
-      document.getElementById("start-battle").addEventListener("click", () => {
-        document.getElementById("start-battle").style.display = "none";
-        document.getElementById("go-gacha").style.display = "none";
-        document.getElementById("open-collection").style.display = "none";
-        document.getElementById("deck-builder").style.display = "block";
-        showDeckChoices();
-      });
-      // 図鑑ボタンイベント
-      const collectionBtn = document.getElementById("open-collection");
-      if (collectionBtn) {
-        collectionBtn.addEventListener("click", () => {
-          const collectionArea = document.getElementById("collection-book");
-          collectionArea.innerHTML = "";
-          cardPool.forEach(card => {
-            const owned = playerOwnedCards.some(c => c.id === card.id);
-            const cardElem = document.createElement("div");
-            cardElem.className = `card ${getRarityClass(card.rarity)}`;
-            cardElem.innerHTML = owned
-              ? `<h3>${card.name}</h3><p>${card.description}</p><p>マナ: ${card.cost}</p><p class="rarity">${card.rarity}</p>`
-              : `<h3>？？？</h3><p>？？？</p><p>マナ: ？</p><p class="rarity">${card.rarity}</p>`;
-            collectionArea.appendChild(cardElem);
-          });
-          collectionArea.style.display = "block";
-          document.getElementById("close-collection").style.display = "inline-block";
-        });
-      }
-      // 図鑑を閉じるボタン
-      const closeBtn = document.getElementById("close-collection");
-      if (closeBtn) {
-        closeBtn.addEventListener("click", () => {
-          document.getElementById("collection-book").style.display = "none";
-          closeBtn.style.display = "none";
-        });
-      }
-      // セーブロードボタン
-      const saveBtn = document.getElementById("save-game");
-      const loadBtn = document.getElementById("load-game");
-      if (saveBtn) saveBtn.addEventListener("click", saveGame);
-      if (loadBtn) loadBtn.addEventListener("click", loadGame);
-    });
-});
 
 function getWeightedRandomCards(n, pool) {
   const weightedPool = [];
@@ -728,14 +732,15 @@ function getRarityClass(rarity) {
 }
 
 function endPlayerTurn() {
-  // 使っていない手札をすべて捨て札に
-  discardPile.push(...currentHand);
+  // 使用されたカード（discardPileに既に入っている）以外は戻す
+  const usedIds = new Set(discardPile.map(c => c.id));
+  const unused = currentHand.filter(c => !usedIds.has(c.id));
+  playerDeck.push(...unused);
   currentHand = [];
   // 画面からもすべての手札カードを削除
   const handContainer = document.getElementById("hand-container");
   handContainer.innerHTML = "";
-
-  updateDiscardPileDisplay(); // 捨て札を更新表示
+  updateDiscardPileDisplay();
   drawHand();
 }
 
@@ -908,4 +913,16 @@ function loadGame() {
   } catch (e) {
     alert("ロードに失敗しました：" + e.message);
   }
+}
+
+// === メインメニューに戻る処理 ===
+function returnToMainMenu() {
+  document.getElementById("battle-screen").style.display = "none";
+  document.getElementById("deck-builder").style.display = "none";
+  document.getElementById("gacha-area").style.display = "none";
+  document.getElementById("path-selection").style.display = "none";
+  document.getElementById("start-battle").style.display = "block";
+  document.getElementById("go-gacha").style.display = "block";
+  document.getElementById("open-collection").style.display = "block";
+  document.getElementById("load-game").style.display = "inline-block";
 }
