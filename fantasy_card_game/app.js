@@ -91,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("gacha-area").style.display = "none";
           document.getElementById("start-battle").style.display = "none";
           document.getElementById("go-gacha").style.display = "none";
+          document.getElementById("open-collection").style.display = "none";
           document.getElementById("load-game").style.display = "none";
           document.getElementById("save-game").style.display = "none";
           document.getElementById("return-main").style.display = "block"; 
@@ -127,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("save-game").style.display = "none";
           document.getElementById("return-main").style.display = "block"; 
           document.getElementById("main-title").style.display = "none";
+          document.getElementById("gacha-button").style.display = "inline-block";
           document.body.classList.add("gacha-background");
         });
       }
