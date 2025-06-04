@@ -340,10 +340,10 @@ button:hover {
 
 #gacha-result {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
-  margin-top: 100px;
-  gap: 12px;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 20px;
 }
 
 .back-button {
@@ -431,6 +431,17 @@ body.gacha-background {
     overflow-y: auto;
   }
 
+  /* 個別に追記 */
+  #gacha-area {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding-bottom: 60px; /* ボタンが被らないように余白追加 */
+  }
+
   #log {
     font-size: 0.9rem;
     max-height: 40vh;
@@ -450,9 +461,11 @@ body.gacha-background {
   }
 
   #gacha-button {
+    position: absolute;
     bottom: 20px;
-    font-size: 1rem;
-    padding: 10px 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
   }
 
   .status-icon {
