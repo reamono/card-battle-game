@@ -37,9 +37,10 @@
     <button id="return-main" style="display: none;">メインメニューに戻る</button>
   </div>
 
-  <div id="gacha-area">
-    <button id="gacha-button" style="display: none;">ガチャを引く！</button>
+  <div id="gacha-area" style="display: none;">
     <div id="gacha-result"></div>
+    <button id="gacha-button">ガチャを引く！</button>
+    <button id="return-main-from-gacha">メインメニューに戻る</button>
   </div>
 
   <div id="collection-book" style="display:none">
@@ -58,28 +59,25 @@
       <div id="player-stats">HP: <span id="player-hp">30</span> / Mana: <span id="player-mana">3</span> / シールド: <span id="player-shield">0</span></div>
       <div id="enemy-stats">敵HP: <span id="enemy-hp">20</span> / 状態: <span id="enemy-status">なし</span></div>
     </div>
-  
+
     <div id="enemy-area">
-      <!-- 敵キャライラスト or Live2Dモデルの表示場所 -->
       <img src="images/enemy.png" alt="敵" style="height: 150px;" />
     </div>
-  
-    <div id="hand-container" class="hand-cards card-grid">
-      <!-- 手札カード -->
-    </div>
-  
+
+    <div id="hand-container" class="hand-cards card-grid"></div>
     <div id="discard-container"></div>
-  
+
     <div class="battle-footer">
       <button id="end-turn-button">ターン終了</button>
       <button id="save-game">セーブ</button>
+      <button id="return-main-from-battle">メインメニューに戻る</button>
       <button id="toggle-log">ログ表示</button>
     </div>
-  
+
     <div id="log"></div>
     <div id="full-log"></div>
   </div>
-  
+
   <div id="reward-area" style="display:none;"></div>
   <button id="next-floor-button" style="display:none;" onclick="advanceToNextFloor()">次の階層へ</button>
 
@@ -112,7 +110,6 @@
       fullLogElement.innerHTML = allLogs.map(line => `<p>${line}</p>`).join("");
     });
 
-    // グローバルに使えるようwindowに出しておく
     window.addLogEntry = addLogEntry;
   </script>
 </body>
