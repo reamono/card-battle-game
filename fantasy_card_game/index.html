@@ -6,29 +6,28 @@
   <title>カードバトル</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    #log {
-      max-height: 100px;
-      overflow-y: auto;
-      background: rgba(0, 0, 0, 0.6);
-      color: white;
-      padding: 10px;
-      margin-top: 10px;
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
-    #full-log {
-      display: none;
-      max-height: 300px;
-      overflow-y: auto;
-      background: white;
-      color: black;
-      padding: 10px;
-      border: 1px solid #ccc;
+    #main-menu {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      padding-bottom: 30px;
+      gap: 10px;
     }
   </style>
 </head>
 <body>
   <h1 id="main-title">カードバトルゲーム</h1>
   <div id="card-container" class="card-grid"></div>
-  <div id="main-menu" style="display: flex; flex-direction: column; gap: 10px;">
+  <div id="main-menu">
     <button id="start-battle">バトル開始</button>
     <button id="go-gacha">ガチャへ</button>
     <button id="save-game" style="display: none;">セーブ</button>
@@ -43,9 +42,7 @@
     <button id="return-main-from-gacha">メインメニューに戻る</button>
   </div>
 
-  <div id="collection-book" style="display:none">
-    <!-- カード一覧をここに表示 -->
-  </div>
+  <div id="collection-book" style="display:none"></div>
   <button id="close-collection" style="display:none;">閉じる</button>
 
   <div id="deck-builder" style="display: none;">
@@ -60,26 +57,21 @@
       <p>敵HP: <span id="enemy-hp">20</span> | 階層: <span id="floor">1</span></p>
       <div id="status-icons"></div>
     </div>
-  
-    <div id="battle-area" class="battle-area">
-      <!-- キャラクター表示は app.js で append される -->
-    </div>
-  
+
+    <div id="battle-area" class="battle-area"></div>
+
     <div id="hand-container" class="hand-grid"></div>
-  
-    <div id="discard-container">
-      <!-- 捨て札表示は app.js にて自動生成 -->
-    </div>
-  
+    <div id="discard-container"></div>
+
     <div id="log" class="log-box"></div>
-  
+
     <div id="reward-area" class="reward-box" style="display: none;"></div>
     <div id="path-selection" style="display: none;">
       <button class="path-btn" data-type="battle">戦闘</button>
       <button class="path-btn" data-type="rest">休憩</button>
       <button class="path-btn" data-type="event">イベント</button>
     </div>
-  
+
     <button id="end-turn-button" style="display: none;">ターン終了</button>
     <button id="next-floor-button" style="display: none;" onclick="advanceToNextFloor()">次の階層へ</button>
   </div>
@@ -99,7 +91,7 @@
       logElement.innerHTML = recentLogs.map(line => `<p>${line}</p>`).join("");
     }
 
-    toggleLogButton.addEventListener("click", () => {
+    toggleLogButton?.addEventListener("click", () => {
       fullLogElement.style.display = (fullLogElement.style.display === "none") ? "block" : "none";
       fullLogElement.innerHTML = allLogs.map(line => `<p>${line}</p>`).join("");
     });
