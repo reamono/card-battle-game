@@ -67,13 +67,12 @@ body {
 }
 
 .card-back {
-  width: 180px;
-  height: 250px;
-  background: url('images/card-back.png') no-repeat center center;
+  position: relative;
+  display: inline-block;
+  width: 150px;
+  height: 220px;
+  background-image: url("images/card-back.png");
   background-size: cover;
-  border-radius: 12px;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
   cursor: pointer;
   margin: 10px;
 }
