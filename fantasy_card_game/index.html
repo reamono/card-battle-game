@@ -54,22 +54,32 @@
   </div>
 
   <div id="battle-screen" style="display: none;">
-    <h4>バトルフェーズ - <span id="floor">1</span>階</h4>
-    <div>
-      <p>自分のHP: <span id="player-hp">30</span> | マナ: <span id="player-mana">3</span> | シールド: <span id="player-shield">0</span></p>
-      <p>敵のHP: <span id="enemy-hp">20</span></p>
+    <div class="battle-header">
+      <div id="player-stats">HP: <span id="player-hp">30</span> / Mana: <span id="player-mana">3</span> / シールド: <span id="player-shield">0</span></div>
+      <div id="enemy-stats">敵HP: <span id="enemy-hp">20</span> / 状態: <span id="enemy-status">なし</span></div>
     </div>
-    
-    <div id="battle-area"></div>
-
-    <div id="hand-container" class="card-grid"></div>
+  
+    <div id="enemy-area">
+      <!-- 敵キャライラスト or Live2Dモデルの表示場所 -->
+      <img src="images/enemy.png" alt="敵" style="height: 150px;" />
+    </div>
+  
+    <div id="hand-container" class="hand-cards card-grid">
+      <!-- 手札カード -->
+    </div>
+  
     <div id="discard-container"></div>
-
-    <button id="end-turn-button">ターン終了</button>
-    <button id="toggle-log">ログ表示</button>
+  
+    <div class="battle-footer">
+      <button id="end-turn-button">ターン終了</button>
+      <button id="save-game">セーブ</button>
+      <button id="toggle-log">ログ表示</button>
+    </div>
+  
     <div id="log"></div>
     <div id="full-log"></div>
   </div>
+  
   <div id="reward-area" style="display:none;"></div>
   <button id="next-floor-button" style="display:none;" onclick="advanceToNextFloor()">次の階層へ</button>
 
