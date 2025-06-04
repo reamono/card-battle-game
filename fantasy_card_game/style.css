@@ -346,3 +346,32 @@ body.gacha-background {
   background-position: center;
   background-repeat: no-repeat;
 }
+
+.battle-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+#enemy-area {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.hand-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 15px 0;
+}
+
+.battle-footer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
