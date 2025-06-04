@@ -52,28 +52,39 @@
   </div>
 
   <div id="battle-screen" style="display: none;">
-    <div id="battle-status">
-      <p>HP: <span id="player-hp">30</span> | マナ: <span id="player-mana">3</span> | シールド: <span id="player-shield">0</span></p>
-      <p>敵HP: <span id="enemy-hp">20</span> | 階層: <span id="floor">1</span></p>
+    <div id="battle-ui">
+      <div class="battle-header">
+        <div class="player-status">
+          <span>❤️ HP: <span id="player-hp">30</span></span>
+          <span>🔷 マナ: <span id="player-mana">3</span></span>
+          <span>🛡️ シールド: <span id="player-shield">0</span></span>
+        </div>
+        <div class="enemy-status">
+          <span>敵HP: <span id="enemy-hp">20</span></span>
+          <span>階層: <span id="floor">1</span></span>
+        </div>
+      </div>
+
       <div id="status-icons"></div>
+      <div id="battle-area" class="battle-area"></div>
+      <div id="hand-container" class="hand-grid"></div>
+      <div id="discard-container"></div>
+
+      <div id="log" class="log-box"></div>
+
+      <div id="reward-area" class="reward-box" style="display: none;"></div>
+      <div id="path-selection" style="display: none;">
+        <button class="path-btn" data-type="battle">戦闘</button>
+        <button class="path-btn" data-type="rest">休憩</button>
+        <button class="path-btn" data-type="event">イベント</button>
+      </div>
+
+      <div class="battle-footer">
+        <button id="end-turn-button" style="display: none;">ターン終了</button>
+        <button id="next-floor-button" style="display: none;" onclick="advanceToNextFloor()">次の階層へ</button>
+        <button id="return-main-from-battle">メインメニューに戻る</button>
+      </div>
     </div>
-
-    <div id="battle-area" class="battle-area"></div>
-
-    <div id="hand-container" class="hand-grid"></div>
-    <div id="discard-container"></div>
-
-    <div id="log" class="log-box"></div>
-
-    <div id="reward-area" class="reward-box" style="display: none;"></div>
-    <div id="path-selection" style="display: none;">
-      <button class="path-btn" data-type="battle">戦闘</button>
-      <button class="path-btn" data-type="rest">休憩</button>
-      <button class="path-btn" data-type="event">イベント</button>
-    </div>
-
-    <button id="end-turn-button" style="display: none;">ターン終了</button>
-    <button id="next-floor-button" style="display: none;" onclick="advanceToNextFloor()">次の階層へ</button>
   </div>
 
   <script src="app.js"></script>
