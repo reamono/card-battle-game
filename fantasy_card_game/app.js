@@ -77,13 +77,13 @@ document.addEventListener("DOMContentLoaded", () => {
           cardPool.forEach(card => {
             const owned = playerOwnedCards.some(c => c.id === card.id);
             const cardElem = document.createElement("div");
-            cardElem.className = `card ${getRarityClass(card.rarity)}`;
+            cardElem.className = `card ${getRarityClass(card.rarity)} ${owned ? "" : "unowned"}`;
             cardElem.innerHTML = owned
               ? `<h3>${card.name}</h3><p>${card.description}</p><p>マナ: ${card.cost}</p><p class="rarity">${card.rarity}</p>`
               : `<h3>？？？</h3><p>？？？</p><p>マナ: ？</p><p class="rarity">${card.rarity}</p>`;
             collectionArea.appendChild(cardElem);
           });
-          collectionArea.style.display = "block";
+          collectionArea.style.display = "grid";
           document.getElementById("close-collection").style.display = "inline-block";
           document.getElementById("main-title").style.display = "none";
           document.getElementById("deck-builder").style.display = "none";
@@ -139,16 +139,27 @@ document.addEventListener("DOMContentLoaded", () => {
           const resultArea = document.getElementById("gacha-result");
           resultArea.innerHTML = "";
           const drawn = getWeightedRandomCards(3, gachaCardPool);
-          drawn.forEach(card => {
-            const cardElem = document.createElement("div");
-            cardElem.className = `card ${getRarityClass(card.rarity)}`;
-            cardElem.innerHTML = `
-              <h3>${card.name}</h3>
-              <p>${card.description}</p>
-              <p>マナ: ${card.cost}</p>
-              <p class="rarity">${card.rarity}</p>
-            `;
-            resultArea.appendChild(cardElem);
+          drawn.forEach((card, i) => {
+            const cardWrapper = document.createElement("div");
+            cardWrapper.classList.add("card-back");
+          
+            cardWrapper.addEventListener("click", () => {
+              if (cardWrapper.classList.contains("card-flipped")) return;
+              cardWrapper.classList.add("card-flipped");
+          
+              const front = document.createElement("div");
+              front.classList.add("card-front", getRarityClass(card.rarity));
+              front.innerHTML = `
+                <h3>${card.name}</h3>
+                <p>${card.description}</p>
+                <p>マナ: ${card.cost}</p>
+                <p class="rarity">${card.rarity}</p>
+              `;
+              cardWrapper.appendChild(front);
+            });
+          
+            resultArea.appendChild(cardWrapper);
+          
             if (!playerOwnedCards.some(c => c.id === card.id)) {
               playerOwnedCards.push(card);
             }
