@@ -208,6 +208,13 @@ button:hover {
   max-height: 280px;
 }
 
+.hand-grid {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 @keyframes pop {
   0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.5; }
   50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
@@ -221,6 +228,11 @@ button:hover {
     justify-content: center;
   }
 
+  .hand-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+  
   .character-wrapper img {
     max-height: 160px;
   }
