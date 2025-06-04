@@ -9,6 +9,23 @@ body {
   overflow-x: hidden;
 }
 
+/* 図鑑全体のグリッド表示 */
+#collection-book {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  padding: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* 未所持カードの表示 */
+.card.unowned {
+  opacity: 0.4;
+  filter: grayscale(70%);
+  pointer-events: none;
+}
+
 .card-grid {
   display: flex;
   flex-wrap: wrap;
@@ -301,4 +318,3 @@ body.gacha-background {
   background-position: center;
   background-repeat: no-repeat;
 }
-
