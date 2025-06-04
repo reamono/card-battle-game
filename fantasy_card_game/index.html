@@ -22,6 +22,19 @@
       padding-bottom: 30px;
       gap: 10px;
     }
+    .status-icon {
+      display: inline-block;
+      margin-right: 4px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+    .status-icons {
+      display: flex;
+      justify-content: center;
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
@@ -58,14 +71,15 @@
           <span>❤️ HP: <span id="player-hp">30</span></span>
           <span>🔷 マナ: <span id="player-mana">3</span></span>
           <span>🛡️ シールド: <span id="player-shield">0</span></span>
+          <div class="status-icons" id="player-status-icons"></div>
         </div>
         <div class="enemy-status">
           <span>敵HP: <span id="enemy-hp">20</span></span>
           <span>階層: <span id="floor">1</span></span>
+          <div class="status-icons" id="enemy-status-icons"></div>
         </div>
       </div>
 
-      <div id="status-icons"></div>
       <div id="battle-area" class="battle-area"></div>
       <div id="hand-container" class="hand-grid"></div>
       <div id="discard-container"></div>
