@@ -55,39 +55,33 @@
   </div>
 
   <div id="battle-screen" style="display: none;">
-    <div class="battle-header">
-      <div id="player-stats">HP: <span id="player-hp">30</span> / Mana: <span id="player-mana">3</span> / シールド: <span id="player-shield">0</span></div>
-      <div id="enemy-stats">敵HP: <span id="enemy-hp">20</span> / 状態: <span id="enemy-status">なし</span></div>
+    <div id="battle-status">
+      <p>HP: <span id="player-hp">30</span> | マナ: <span id="player-mana">3</span> | シールド: <span id="player-shield">0</span></p>
+      <p>敵HP: <span id="enemy-hp">20</span> | 階層: <span id="floor">1</span></p>
+      <div id="status-icons"></div>
     </div>
-
-    <div id="enemy-area">
-      <img src="images/enemy.png" alt="敵" style="height: 150px;" />
+  
+    <div id="battle-area" class="battle-area">
+      <!-- キャラクター表示は app.js で append される -->
     </div>
-
-    <div id="hand-container" class="hand-cards card-grid"></div>
-    <div id="discard-container"></div>
-
-    <div class="battle-footer">
-      <button id="end-turn-button">ターン終了</button>
-      <button id="save-game">セーブ</button>
-      <button id="return-main-from-battle">メインメニューに戻る</button>
-      <button id="toggle-log">ログ表示</button>
+  
+    <div id="hand-container" class="hand-grid"></div>
+  
+    <div id="discard-container">
+      <!-- 捨て札表示は app.js にて自動生成 -->
     </div>
-
-    <div id="log"></div>
-    <div id="full-log"></div>
-  </div>
-
-  <div id="reward-area" style="display:none;"></div>
-  <button id="next-floor-button" style="display:none;" onclick="advanceToNextFloor()">次の階層へ</button>
-
-  <div id="path-selection" style="display: none;">
-    <h5>次に進む道を選んでください</h5>
-    <div class="path-options">
+  
+    <div id="log" class="log-box"></div>
+  
+    <div id="reward-area" class="reward-box" style="display: none;"></div>
+    <div id="path-selection" style="display: none;">
       <button class="path-btn" data-type="battle">戦闘</button>
       <button class="path-btn" data-type="rest">休憩</button>
       <button class="path-btn" data-type="event">イベント</button>
     </div>
+  
+    <button id="end-turn-button" style="display: none;">ターン終了</button>
+    <button id="next-floor-button" style="display: none;" onclick="advanceToNextFloor()">次の階層へ</button>
   </div>
 
   <script src="app.js"></script>
