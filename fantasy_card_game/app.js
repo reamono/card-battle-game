@@ -740,7 +740,6 @@ function processTurnEffects() {
 
 // === 敵ターンの処理 ===
 function enemyTurn() {
-  const log = document.getElementById("log");
   addLogEntry(`敵のターン！`);
   processTurnEffects();
   applyEnemyStatusEffects(); // 状態異常処理（敵）
@@ -750,24 +749,15 @@ function enemyTurn() {
   } else if (enemyStatus.stunned) {
     addLogEntry(`敵は気絶していて行動できない！`);
   } else {
-    let damage = enemy.attack;
-
     if (playerStatus.shieldTurns > 0) {
-      damage = 0;
       addLogEntry(`バリアでダメージを無効化！`);
     } else if (playerStatus.reflectNext) {
+      const damage = enemy.attack;
       addLogEntry(`敵の攻撃を反射した！敵に${damage}ダメージ！`);
       enemy.hp -= damage;
       playerStatus.reflectNext = false;
     } else {
-      if (player.shield > 0) {
-        const blocked = Math.min(player.shield, damage);
-        damage -= blocked;
-        player.shield -= blocked;
-        addLogEntry(`シールドで${blocked}軽減！`);
-      }
-      player.hp -= damage;
-      addLogEntry(`敵の攻撃！${damage}ダメージを受けた！`);
+      enemyAttack(); // ← ここで攻撃ロジックを呼び出す
     }
   }
 
