@@ -126,8 +126,8 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("open-collection").style.display = "none";
           document.getElementById("load-game").style.display = "none";
           document.getElementById("save-game").style.display = "none";
-          document.getElementById("return-main").style.display = "none";
-          document.getElementById("return-main-from-gacha").style.display = "inline-block";
+          document.getElementById("return-main").style.display = "inline-block";
+          document.getElementById("return-main-from-gacha").style.display = "none";
           document.getElementById("main-title").style.display = "none";
           document.getElementById("gacha-button").style.display = "inline-block";
           document.body.classList.add("gacha-background");
