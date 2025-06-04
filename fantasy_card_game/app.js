@@ -532,7 +532,6 @@ function startBattlePhase() {
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("load-game").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
-  document.getElementById("return-main").style.display = "block";
 
   // キャラクター再表示や初期UI処理
   document.getElementById("battle-area").innerHTML = `
