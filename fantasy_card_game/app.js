@@ -171,18 +171,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // === 状態アイコンの表示 ===
 function updateStatusIcons() {
-  const area = document.getElementById("status-icons");
-  if (!area) return;
-  area.innerHTML = "";
+  const playerArea = document.getElementById("player-status-icons");
+  const enemyArea = document.getElementById("enemy-status-icons");
 
-  const icons = [];
-  if (playerStatus.reflectNext) icons.push("🪞 反射");
-  if (playerStatus.attackBoost > 0) icons.push(`⚔️ 攻+${playerStatus.attackBoost}`);
-  if (playerStatus.poisoned > 0) icons.push(`☠️ 毒(${playerStatus.poisoned})`);
-  if (playerStatus.burned > 0) icons.push(`🔥 火傷(${playerStatus.burned})`);
-  if (playerStatus.nextCardFree) icons.push("💫 無料");
+  if (playerArea) {
+    const playerIcons = [];
+    if (playerStatus.reflectNext) playerIcons.push("🪞 反射");
+    if (playerStatus.attackBoost > 0) playerIcons.push(`⚔️ 攻+${playerStatus.attackBoost}`);
+    if (playerStatus.poisoned > 0) playerIcons.push(`☠️ 毒(${playerStatus.poisoned})`);
+    if (playerStatus.burned > 0) playerIcons.push(`🔥 火傷(${playerStatus.burned})`);
+    if (playerStatus.nextCardFree) playerIcons.push("💫 無料");
+    playerArea.innerHTML = playerIcons.map(txt => `<span class="status-icon">${txt}</span>`).join(" ");
+  }
 
-  area.innerHTML = icons.map(txt => `<span class="status-icon">${txt}</span>`).join(" ");
+  if (enemyArea) {
+    const enemyIcons = [];
+    if (enemyStatus.poisoned > 0) enemyIcons.push(`☠️ 毒(${enemyStatus.poisoned})`);
+    if (enemyStatus.burned > 0) enemyIcons.push(`🔥 火傷(${enemyStatus.burned})`);
+    enemyArea.innerHTML = enemyIcons.map(txt => `<span class="status-icon">${txt}</span>`).join(" ");
+  }
+}
+
+// 敵の攻撃に状態異常を追加する
+function enemyAttack() {
+  const damage = Math.floor(Math.random() * 4) + 2; // 通常ダメージ
+  playerStatus.hp -= damage;
+  addLogEntry(`敵の攻撃！${damage} ダメージを受けた`);
+
+  // 状態異常をランダムに付与
+  const rand = Math.random();
+  if (rand < 0.33) {
+    playerStatus.poisoned += 2;
+    addLogEntry("☠️ プレイヤーは毒状態になった！");
+  } else if (rand < 0.66) {
+    playerStatus.burned += 2;
+    addLogEntry("🔥 プレイヤーは火傷状態になった！");
+  }
+
+  updateBattleStatus();
+  updateStatusIcons();
 }
 
 // === エフェクト処理 ===
