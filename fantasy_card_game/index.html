@@ -39,6 +39,7 @@
 </head>
 <body>
   <h1 id="main-title">カードバトルゲーム</h1>
+  <div id="coin-display">💰 コイン: <span id="coin-count">0</span></div>
   <div id="card-container" class="card-grid"></div>
   <div id="main-menu">
     <button id="start-battle">バトル開始</button>
@@ -46,13 +47,62 @@
     <button id="save-game" style="display: none;">セーブ</button>
     <button id="load-game">ロード</button>
     <button id="open-collection">図鑑</button>
+    <button id="show-stats">戦績</button>
     <button id="return-main" style="display: none;">メインメニューに戻る</button>
+  </div>
+
+  <div id="stats-screen" style="display: none;">
+    <h2>戦績</h2>
+    <div id="stats-content">
+      <div class="stat-item">
+        <span class="stat-label">総ダメージ:</span>
+        <span id="stat-total-damage">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">使用カード数:</span>
+        <span id="stat-cards-played">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">勝利回数:</span>
+        <span id="stat-battles-won">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">敗北回数:</span>
+        <span id="stat-battles-lost">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">獲得コイン総数:</span>
+        <span id="stat-total-coins">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">ガチャ回数:</span>
+        <span id="stat-gacha-pulls">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">到達最高階層:</span>
+        <span id="stat-max-floor">1</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">プレイ時間:</span>
+        <span id="stat-play-time">0秒</span>
+      </div>
+    </div>
+    <button id="close-stats">閉じる</button>
   </div>
 
   <div id="gacha-area" style="display: none;">
     <button id="return-main-from-gacha">メインメニューに戻る</button>
     <div id="gacha-result"></div>
-    <button id="gacha-button">ガチャを引く！</button>
+    <div class="gacha-buttons">
+      <div>
+        <button id="gacha-button" class="gacha-button">ガチャを引く！</button>
+        <div class="gacha-cost">コイン: 10</div>
+      </div>
+      <div>
+        <button id="gacha-10-button" class="gacha-button">10連ガチャ</button>
+        <div class="gacha-cost">コイン: 100</div>
+      </div>
+    </div>
   </div>
 
   <div id="collection-book" style="display:none"></div>
@@ -71,11 +121,14 @@
           <span>❤️ HP: <span id="player-hp">30</span></span>
           <span>🔷 マナ: <span id="player-mana">3</span></span>
           <span>🛡️ シールド: <span id="player-shield">0</span></span>
+          <span>🃏 手札: <span id="hand-count">0</span></span>
+          <span>📚 山札: <span id="deck-count-battle">0</span></span>
           <div class="status-icons" id="player-status-icons"></div>
         </div>
         <div class="enemy-status">
           <span>敵HP: <span id="enemy-hp">20</span></span>
           <span>階層: <span id="floor">1</span></span>
+          <span>🔄 ターン: <span id="turn-count">1</span></span>
           <div class="status-icons" id="enemy-status-icons"></div>
         </div>
       </div>
@@ -83,6 +136,10 @@
       <div id="battle-area" class="battle-area"></div>
       <div id="hand-container" class="hand-grid"></div>
       <div id="discard-container"></div>
+      <div id="deck-container">
+        <button id="show-deck-button">山札を確認</button>
+        <div id="deck-list" style="display: none;"></div>
+      </div>
 
       <div id="log" class="log-box"></div>
 
@@ -104,8 +161,6 @@
   <script src="app.js"></script>
   <script>
     const logElement = document.getElementById("log");
-    const fullLogElement = document.getElementById("full-log");
-    const toggleLogButton = document.getElementById("toggle-log");
     const recentLogs = [];
     const allLogs = [];
 
@@ -116,12 +171,6 @@
       logElement.innerHTML = recentLogs.map(line => `<p>${line}</p>`).join("");
     }
 
-    toggleLogButton?.addEventListener("click", () => {
-      fullLogElement.style.display = (fullLogElement.style.display === "none") ? "block" : "none";
-      fullLogElement.innerHTML = allLogs.map(line => `<p>${line}</p>`).join("");
-    });
-
-    window.addLogEntry = addLogEntry;
   </script>
 </body>
 </html>

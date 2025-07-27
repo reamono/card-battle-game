@@ -11,12 +11,64 @@ const rarityWeights = {
 };
 
 const MAX_HP = 30;
+const GACHA_COST = 10; // ガチャ1回のコイン消費量
+
+// === サウンド効果管理 ===
+const sounds = {
+  cardPlay: null,
+  damage: null,
+  heal: null,
+  gacha: null,
+  buttonClick: null,
+  victory: null,
+  defeat: null
+};
+
+// サウンド初期化関数
+function initSounds() {
+  try {
+    // 音源ファイルが存在する場合のみ読み込み
+    if (document.querySelector('audio[src*="sounds/card-play"]')) {
+      sounds.cardPlay = new Audio('sounds/card-play.mp3');
+    }
+    if (document.querySelector('audio[src*="sounds/damage"]')) {
+      sounds.damage = new Audio('sounds/damage.mp3');
+    }
+    if (document.querySelector('audio[src*="sounds/heal"]')) {
+      sounds.heal = new Audio('sounds/heal.mp3');
+    }
+    if (document.querySelector('audio[src*="sounds/gacha"]')) {
+      sounds.gacha = new Audio('sounds/gacha.mp3');
+    }
+    if (document.querySelector('audio[src*="sounds/button-click"]')) {
+      sounds.buttonClick = new Audio('sounds/button-click.mp3');
+    }
+    if (document.querySelector('audio[src*="sounds/victory"]')) {
+      sounds.victory = new Audio('sounds/victory.mp3');
+    }
+    if (document.querySelector('audio[src*="sounds/defeat"]')) {
+      sounds.defeat = new Audio('sounds/defeat.mp3');
+    }
+  } catch (e) {
+    console.log("音源ファイルが見つかりません。サウンド機能は無効です。");
+  }
+}
+
+// サウンド再生関数
+function playSound(soundName) {
+  const sound = sounds[soundName];
+  if (sound) {
+    sound.currentTime = 0; // 再生位置をリセット
+    sound.play().catch(e => console.log("サウンド再生エラー:", e));
+  }
+}
 
 let cardPool = [];         // 全カードデータ
 let initialCardPool = []; // 初期カード用（initial=true）
 let gachaCardPool = []; // ガチャ用（initial=false）
 let playerOwnedCards = []; // 所持カード（図鑑や管理用）
 let playerDeck = [];       // 山札
+let constructedDeck = []; // デッキ構築で選んだ10枚（固定）
 let discardPile = [];      // 捨て札
 let currentHand = [];      // 現在の手札
 let deckBuildCount = 0;    // 選択済み枚数
@@ -32,6 +84,56 @@ let enemy = {
   attack: 4,
 };
 let floor = 1;
+let playerCoins = 0; // コイン管理用変数を追加
+let turnCount = 0; // ターン数管理用変数を追加
+// === 戦績管理用変数 ===
+let gameStats = {
+  totalDamage: 0,        // 総ダメージ
+  cardsPlayed: 0,        // 使用カード数
+  battlesWon: 0,         // 勝利回数
+  battlesLost: 0,        // 敗北回数
+  totalCoinsEarned: 0,   // 獲得コイン総数
+  gachaPulls: 0,         // ガチャ回数
+  maxFloor: 1,           // 到達最高階層
+  playTime: 0            // プレイ時間（秒）
+};
+
+// === バトル統計用変数 ===
+let battleStats = {
+  damageDealt: 0,      // このバトルでの与ダメージ
+  damageTaken: 0,      // このバトルでの被ダメージ
+  cardsUsed: 0,        // このバトルでの使用カード数
+  turnsElapsed: 0      // このバトルでの経過ターン数
+};
+
+// === パーティクルエフェクト関数 ===
+function createParticle(x, y, type, text = "✨") {
+  const particle = document.createElement("div");
+  particle.className = `particle ${type}-particle`;
+  particle.textContent = text;
+  particle.style.left = `${x}px`;
+  particle.style.top = `${y}px`;
+
+  document.body.appendChild(particle);
+
+  // アニメーション終了後に要素を削除
+  setTimeout(() => {
+    particle.remove();
+  }, 2000);
+}
+
+// 複数パーティクル生成
+function createMultipleParticles(x, y, type, count = 5, text = "✨") {
+  for (let i = 0; i < count; i++) {
+    const offsetX = x + (Math.random() - 0.5) * 100;
+    const offsetY = y + (Math.random() - 0.5) * 50;
+    const delay = Math.random() * 500;
+
+    setTimeout(() => {
+      createParticle(offsetX, offsetY, type, text);
+    }, delay);
+  }
+}
 let playerStatus = {
   healingOverTime: 0,
   shieldTurns: 0,
@@ -50,8 +152,52 @@ let enemyStatus = {
   attackDown: 0
 };
 
+// === 戦績更新関数 ===
+function updateStats() {
+  document.getElementById("stat-total-damage").textContent = gameStats.totalDamage;
+  document.getElementById("stat-cards-played").textContent = gameStats.cardsPlayed;
+  document.getElementById("stat-battles-won").textContent = gameStats.battlesWon;
+  document.getElementById("stat-battles-lost").textContent = gameStats.battlesLost;
+  document.getElementById("stat-total-coins").textContent = gameStats.totalCoinsEarned;
+  document.getElementById("stat-gacha-pulls").textContent = gameStats.gachaPulls;
+  document.getElementById("stat-max-floor").textContent = gameStats.maxFloor;
+  
+  const minutes = Math.floor(gameStats.playTime / 60);
+  const seconds = gameStats.playTime % 60;
+  document.getElementById("stat-play-time").textContent = `${minutes}分${seconds}秒`;
+}
+
+// 戦績表示機能
+function showStats() {
+  updateStats();
+  document.getElementById("stats-screen").style.display = "block";
+  document.getElementById("main-title").style.display = "none";
+  document.getElementById("main-menu").style.display = "none";
+  document.getElementById("deck-builder").style.display = "none";
+  document.getElementById("battle-screen").style.display = "none";
+  document.getElementById("gacha-area").style.display = "none";
+  document.getElementById("collection-book").style.display = "none";
+  document.getElementById("return-main").style.display = "block";
+}
+
+function closeStats() {
+  document.getElementById("stats-screen").style.display = "none";
+  document.getElementById("main-title").style.display = "block";
+  document.getElementById("main-menu").style.display = "flex";
+  document.getElementById("return-main").style.display = "none";
+}
+
+// === コイン表示の更新関数 ===
+function updateCoinDisplay() {
+  const coinElem = document.getElementById("coin-count");
+  if (coinElem) {
+    coinElem.textContent = playerCoins;
+  }
+}
+
 // JSONデータを取得して初期化
 document.addEventListener("DOMContentLoaded", () => {
+  initSounds(); // サウンド機能を初期化
   fetch(API_URL)
     .then(res => res.json())
     .then(data => {
@@ -94,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("open-collection").style.display = "none";
           document.getElementById("load-game").style.display = "none";
           document.getElementById("save-game").style.display = "none";
-          document.getElementById("return-main").style.display = "block"; 
+          document.getElementById("return-main").style.display = "block";
           document.getElementById("main-title").style.display = "none";
         });
       }
@@ -110,9 +256,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const saveBtn = document.getElementById("save-game");
       const loadBtn = document.getElementById("load-game");
       const returnBtn = document.getElementById("return-main");
+      const statsBtn = document.getElementById("show-stats");
+      const closeStatsBtn = document.getElementById("close-stats");
       if (saveBtn) saveBtn.addEventListener("click", saveGame);
       if (loadBtn) loadBtn.addEventListener("click", loadGame);
       if (returnBtn) returnBtn.addEventListener("click", returnToMainMenu);
+      if (statsBtn) statsBtn.addEventListener("click", showStats);
+      if (closeStatsBtn) closeStatsBtn.addEventListener("click", closeStats);
       if (loadBtn) loadBtn.style.display = "inline-block";
 
       const goGachaButton = document.getElementById("go-gacha");
@@ -137,36 +287,112 @@ document.addEventListener("DOMContentLoaded", () => {
       const gachaButton = document.getElementById("gacha-button");
       if (gachaButton) {
         gachaButton.addEventListener("click", () => {
+          if (playerCoins < GACHA_COST) {
+            alert("コインが足りません！");
+            return;
+          }
+          playerCoins -= GACHA_COST;
+          updateCoinDisplay();
+          playSound('gacha'); // ガチャ音を再生
+          gameStats.gachaPulls++; // 戦績更新
+          gameStats.totalCoinsEarned += GACHA_COST; // 消費コインも記録
+          
+          // ガチャパーティクル
+          const gachaButtonRect = gachaButton.getBoundingClientRect();
+          createMultipleParticles(gachaButtonRect.left + gachaButtonRect.width / 2, gachaButtonRect.top, "gacha", 8, "⭐");
           const resultArea = document.getElementById("gacha-result");
           resultArea.innerHTML = "";
           const drawn = getWeightedRandomCards(3, gachaCardPool);
           drawn.forEach((card, i) => {
-            const cardWrapper = document.createElement("div");
-            cardWrapper.classList.add("card-back");
-          
-            cardWrapper.addEventListener("click", () => {
-              if (cardWrapper.classList.contains("card-flipped")) return;
-              cardWrapper.classList.add("card-flipped");
-          
-              const front = document.createElement("div");
-              front.classList.add("card-front", getRarityClass(card.rarity));
-              front.innerHTML = `
-                <h3>${card.name}</h3>
-                <p>${card.description}</p>
-                <p>マナ: ${card.cost}</p>
-                <p class="rarity">${card.rarity}</p>
-              `;
-              cardWrapper.appendChild(front);
+            // カードのflip構造
+            const cardBack = document.createElement("div");
+            cardBack.classList.add("card-back");
+            const cardInner = document.createElement("div");
+            cardInner.classList.add("card-back-inner");
+
+            // 裏面
+            const back = document.createElement("div");
+            back.classList.add("card-back-back");
+
+            // 表面
+            const front = document.createElement("div");
+            front.classList.add("card-back-front", getRarityClass(card.rarity));
+            front.innerHTML = `
+              <h3>${card.name}</h3>
+              <p>${card.description}</p>
+              <p>マナ: ${card.cost}</p>
+              <p class="rarity">${card.rarity}</p>
+            `;
+
+            cardInner.appendChild(back);
+            cardInner.appendChild(front);
+            cardBack.appendChild(cardInner);
+
+            cardBack.addEventListener("click", () => {
+              if (cardBack.classList.contains("card-flipped")) return;
+              cardBack.classList.add("card-flipped");
+              // 所持カードに追加
+              if (!playerOwnedCards.some(c => c.id === card.id)) {
+                playerOwnedCards.push(card);
+              }
             });
-          
-            resultArea.appendChild(cardWrapper);
-          
-            if (!playerOwnedCards.some(c => c.id === card.id)) {
-              playerOwnedCards.push(card);
-            }
+
+            resultArea.appendChild(cardBack);
           });
         });
       }
+      const gacha10Button = document.getElementById("gacha-10-button");
+      if (gacha10Button) {
+        gacha10Button.addEventListener("click", () => {
+          const totalCost = GACHA_COST * 10;
+          if (playerCoins < totalCost) {
+            alert("コインが足りません！（10連には" + totalCost + "コイン必要です）");
+            return;
+          }
+          playerCoins -= totalCost;
+          updateCoinDisplay();
+          const resultArea = document.getElementById("gacha-result");
+          resultArea.innerHTML = "";
+          const drawn = getWeightedRandomCards(10, gachaCardPool);
+          drawn.forEach((card, i) => {
+            // カードのflip構造
+            const cardBack = document.createElement("div");
+            cardBack.classList.add("card-back");
+            const cardInner = document.createElement("div");
+            cardInner.classList.add("card-back-inner");
+
+            // 裏面
+            const back = document.createElement("div");
+            back.classList.add("card-back-back");
+
+            // 表面
+            const front = document.createElement("div");
+            front.classList.add("card-back-front", getRarityClass(card.rarity));
+            front.innerHTML = `
+              <h3>${card.name}</h3>
+              <p>${card.description}</p>
+              <p>マナ: ${card.cost}</p>
+              <p class="rarity">${card.rarity}</p>
+            `;
+
+            cardInner.appendChild(back);
+            cardInner.appendChild(front);
+            cardBack.appendChild(cardInner);
+
+            cardBack.addEventListener("click", () => {
+              if (cardBack.classList.contains("card-flipped")) return;
+              cardBack.classList.add("card-flipped");
+              // 所持カードに追加
+              if (!playerOwnedCards.some(c => c.id === card.id)) {
+                playerOwnedCards.push(card);
+              }
+            });
+
+            resultArea.appendChild(cardBack);
+          });
+        });
+      }
+      updateCoinDisplay(); // 初期表示
     });
 });
 
@@ -189,6 +415,8 @@ function updateStatusIcons() {
     const enemyIcons = [];
     if (enemyStatus.poisoned > 0) enemyIcons.push(`☠️ 毒(${enemyStatus.poisoned})`);
     if (enemyStatus.burned > 0) enemyIcons.push(`🔥 火傷(${enemyStatus.burned})`);
+    if (enemyStatus.attackDown > 0) enemyIcons.push(`⬇️ 攻撃-${enemyStatus.attackDown}`);
+    if (enemyStatus.stunned) enemyIcons.push(`💫 気絶`);
     enemyArea.innerHTML = enemyIcons.map(txt => `<span class="status-icon">${txt}</span>`).join(" ");
   }
 }
@@ -197,6 +425,8 @@ function updateStatusIcons() {
 function enemyAttack() {
   const damage = Math.floor(Math.random() * 4) + 2; // 通常ダメージ
   playerStatus.hp -= damage;
+  // バトル統計更新
+  battleStats.damageTaken += damage;
   addLogEntry(`敵の攻撃！${damage} ダメージを受けた`);
 
   // 状態異常をランダムに付与
@@ -211,6 +441,20 @@ function enemyAttack() {
 
   updateBattleStatus();
   updateStatusIcons();
+}
+
+// === バトル状態の更新関数 ===
+function updateBattleStatus() {
+  document.getElementById("player-hp").textContent = player.hp;
+  document.getElementById("player-mana").textContent = player.mana;
+  document.getElementById("player-shield").textContent = player.shield;
+  document.getElementById("enemy-hp").textContent = enemy.hp;
+  document.getElementById("floor").textContent = floor;
+  document.getElementById("hand-count").textContent = currentHand.length;
+  // 構築デッキの枚数を表示（追加されたカードも含む）
+  const constructedDeckCount = constructedDeck.length;
+  document.getElementById("deck-count-battle").textContent = constructedDeckCount;
+  document.getElementById("turn-count").textContent = turnCount;
 }
 
 // === エフェクト処理 ===
@@ -255,6 +499,36 @@ function applyAttackBoost(baseDamage) {
 // === 通常のダメージ処理に反映例 ===
 function dealDamage(baseDamage) {
   const damage = applyAttackBoost(baseDamage);
+  
+  // ダメージ表示アニメーション
+  const enemyElem = document.getElementById("boss-character");
+  if (enemyElem) {
+    const damageText = document.createElement("div");
+    damageText.className = "damage-text";
+    damageText.textContent = `-${damage}`;
+    damageText.style.left = `${enemyElem.offsetLeft + enemyElem.offsetWidth / 2}px`;
+    damageText.style.top = `${enemyElem.offsetTop}px`;
+    document.body.appendChild(damageText);
+    
+    setTimeout(() => {
+      damageText.remove();
+    }, 1500);
+  }
+  
+  // ダメージ音を再生
+  playSound('damage');
+  
+  // 戦績更新
+  gameStats.totalDamage += damage;
+  // バトル統計更新
+  battleStats.damageDealt += damage;
+  
+  // ダメージパーティクル
+  if (enemyElem) {
+    const rect = enemyElem.getBoundingClientRect();
+    createMultipleParticles(rect.left + rect.width / 2, rect.top, "damage", 5, "💥");
+  }
+  
   if (enemy.shield && enemy.shield > 0) {
     enemy.shield -= damage;
     if (enemy.shield < 0) {
@@ -308,6 +582,9 @@ function showRewardSelection() {
       <p class="rarity">${card.rarity}</p>
     `;
     cardElem.addEventListener("click", () => {
+      // 構築デッキに追加
+      constructedDeck.push(card);
+      // 山札にも追加
       playerDeck.push(card);
       rewardArea.innerHTML = "<p>カードを獲得しました！</p>";
       nextFloorBtn.style.display = "block";
@@ -378,11 +655,13 @@ function applyEnemyStatusEffects() {
     enemy.hp -= 2;
     enemyStatus.poisoned--;
     addLogEntry("敵は毒で2ダメージを受けた！");
+    console.log(`毒ダメージ処理: 残り${enemyStatus.poisoned}ターン, 敵HP: ${enemy.hp}`);
   }
   if (enemyStatus.burned > 0) {
     enemy.hp -= 3;
     enemyStatus.burned--;
     addLogEntry("敵は火傷で3ダメージを受けた！");
+    console.log(`火傷ダメージ処理: 残り${enemyStatus.burned}ターン, 敵HP: ${enemy.hp}`);
   }
   if (enemyStatus.attackDown > 0) {
     enemyStatus.attackDown--;
@@ -474,7 +753,7 @@ function showDeckChoices() {
   document.getElementById("return-main").style.display = "block";
   const choiceArea = document.getElementById("deck-choice");
   choiceArea.innerHTML = "";
-  const random3 = getWeightedRandomCards(3, initialCardPool);　// 初期カードから選択
+  const random3 = getWeightedRandomCards(3, initialCardPool); // 初期カードプールから選択
 
   if (random3.length === 0) {
     console.warn("初期カードが0枚のため、デッキ構築できません。initialCardPool:", initialCardPool);
@@ -497,6 +776,10 @@ function showDeckChoices() {
       document.getElementById("deck-count").textContent = deckBuildCount;
 
       if (deckBuildCount >= 10) {
+        // デッキ構築完了時、構築したデッキを保存
+        constructedDeck = [...playerDeck];
+        // バトル用の山札を構築デッキで初期化
+        playerDeck = [...constructedDeck];
         startBattlePhase();
       } else {
         showDeckChoices();
@@ -527,6 +810,14 @@ function getRandomCards(n, pool) {
 
 function startBattlePhase() {
   isInBattle = true;
+  turnCount = 1; // ターン数をリセット
+  // バトル統計をリセット
+  battleStats = {
+    damageDealt: 0,
+    damageTaken: 0,
+    cardsUsed: 0,
+    turnsElapsed: 0
+  };
   document.getElementById("main-title").style.display = "none";
   document.getElementById("save-game").style.display = "inline-block";
   document.getElementById("deck-builder").style.display = "none";
@@ -554,6 +845,11 @@ function startBattlePhase() {
     attack: 4 + floor,
   };
 
+  // 山札を構築デッキで初期化（シャッフルして）
+  // 構築デッキ（追加カードを含む）で山札を初期化
+  playerDeck = shuffle([...constructedDeck]);
+  discardPile = []; // 捨て札をリセット
+
   drawHand();
   updateBattleStatus();
   updateDiscardPileDisplay();
@@ -564,6 +860,47 @@ function startBattlePhase() {
     enemyTurn();
   });
 
+  // 山札確認ボタンのイベント
+  const showDeckButton = document.getElementById("show-deck-button");
+  if (showDeckButton) {
+    // 既存のイベントリスナーを削除
+    showDeckButton.replaceWith(showDeckButton.cloneNode(true));
+    const newShowDeckButton = document.getElementById("show-deck-button");
+    
+    newShowDeckButton.addEventListener("click", () => {
+      const deckList = document.getElementById("deck-list");
+      const isVisible = deckList.style.display === "block";
+
+      if (isVisible) {
+        deckList.style.display = "none";
+        newShowDeckButton.textContent = "山札を確認";
+      } else {
+        deckList.innerHTML = "";
+        
+        deckList.innerHTML = `<h4>構築デッキ (${constructedDeck.length}枚)</h4>`;
+
+        if (constructedDeck.length === 0) {
+          deckList.innerHTML += "<p>山札は空です</p>";
+        } else {
+          constructedDeck.forEach((card, index) => {
+            const cardElem = document.createElement("div");
+            cardElem.className = `card small ${getRarityClass(card.rarity)}`;
+            cardElem.innerHTML = `
+              <h4>${card.name}</h4>
+              <p>${card.description}</p>
+              <p>マナ: ${card.cost}</p>
+              <p class="rarity">${card.rarity}</p>
+            `;
+            deckList.appendChild(cardElem);
+          });
+        }
+
+        deckList.style.display = "block";
+        newShowDeckButton.textContent = "山札を隠す";
+      }
+    });
+  }
+
   document.getElementById("end-turn-button").style.display = "block";
 }
 
@@ -572,35 +909,55 @@ function drawHand() {
   handContainer.innerHTML = "";
   currentHand = [];
 
-  let drawCount = 5; // ← 🔧 ここを追加！
+  let drawCount = 5;
 
-  // 捨て札を山札に戻す（足りないとき）
+  // デバッグログ
+  console.log(`=== drawHand開始 ===`);
+  console.log(`山札枚数: ${playerDeck.length}`);
+  console.log(`捨て札枚数: ${discardPile.length}`);
+  console.log(`手札枚数: ${currentHand.length}`);
+
+  // 山札が5枚未満で捨て札がある場合、捨て札を山札に戻す
   if (playerDeck.length < drawCount && discardPile.length > 0) {
     playerDeck = [...playerDeck, ...shuffle(discardPile)];
     discardPile = [];
+    addLogEntry("捨て札を山札に戻しました");
+    console.log(`捨て札を山札に戻しました - 山札: ${playerDeck.length}枚`);
+  }
+
+  // 山札が5枚未満で捨て札が0枚の場合、構築デッキから山札を再構築
+  if (playerDeck.length < drawCount && discardPile.length === 0 && constructedDeck.length > 0) {
+    playerDeck = shuffle([...constructedDeck]);
+    addLogEntry("山札を再構築しました");
+    console.log(`山札を再構築しました - 山札: ${playerDeck.length}枚`);
   }
 
   // 本当に何も引けないときだけログを出して終了
-  if (playerDeck.length === 0 && discardPile.length === 0 && cardPool.length === 0) {
+  if (playerDeck.length === 0 && discardPile.length === 0 && constructedDeck.length === 0) {
     addLogEntry("カードが尽きてこれ以上引けません！");
+    console.log(`カードが尽きてこれ以上引けません！`);
     return;
   }
 
-  // デッキが空でカードプールが残っている場合、最初の配布とみなす
-  if (playerDeck.length === 0 && cardPool.length > 0) {
-    playerDeck = [...cardPool];
-  }
-
-
   // 実際にカードを引く（最大5枚）
-  const drawn = playerDeck.splice(0, drawCount);
+  const actualDrawCount = Math.min(drawCount, playerDeck.length);
+  const drawn = playerDeck.splice(0, actualDrawCount);
   currentHand = [...drawn];
+
+  console.log(`実際に引いた枚数: ${actualDrawCount}枚`);
+  console.log(`引いた後の山札: ${playerDeck.length}枚`);
+  console.log(`=== drawHand終了 ===`);
 
   // 手札を表示
   currentHand.forEach(card => {
     const cardElem = document.createElement("div");
     const rarityClass = getRarityClass(card.rarity);
     cardElem.className = `card ${rarityClass}`;
+    // マナ不足時はカードをグレーアウト
+    if (player.mana < card.cost) {
+      cardElem.style.opacity = "0.5";
+      cardElem.style.cursor = "not-allowed";
+    }
     cardElem.innerHTML = `
       <h3>${card.name}</h3>
       <p>${card.description}</p>
@@ -608,6 +965,10 @@ function drawHand() {
       <p class="rarity">${card.rarity}</p>
     `;
     cardElem.addEventListener("click", () => {
+      if (player.mana < card.cost) {
+        addLogEntry(`マナが足りません！（必要: ${card.cost}, 所持: ${player.mana}）`);
+        return;
+      }
       if (player.mana >= card.cost) {
         playCard(card);
         discardPile.push(card);
@@ -618,6 +979,9 @@ function drawHand() {
     });
     handContainer.appendChild(cardElem);
   });
+
+  // 手札枚数表示を更新
+  addLogEntry(`手札を${currentHand.length}枚引きました`);
 }
 
 // シャッフル関数
@@ -672,6 +1036,40 @@ function animateCharacter(card) {
 
 //カード処理
 function playCard(card) {
+  // カード使用アニメーション
+  const cardElements = document.querySelectorAll('.card');
+  cardElements.forEach(elem => {
+    if (elem.textContent.includes(card.name)) {
+      elem.classList.add('used');
+      setTimeout(() => {
+        elem.classList.remove('used');
+      }, 800);
+    }
+  });
+  
+  // マナ消費アニメーション
+  const manaElem = document.getElementById("player-mana");
+  if (manaElem) {
+    manaElem.classList.add('mana-consumed');
+    setTimeout(() => {
+      manaElem.classList.remove('mana-consumed');
+    }, 600);
+  }
+  
+  // カード使用音を再生
+  playSound('cardPlay');
+  
+  // 戦績更新
+  gameStats.cardsPlayed++;
+  // バトル統計更新
+  battleStats.cardsUsed++;
+  
+  // パーティクルエフェクト
+  const cardRect = cardElements[0]?.getBoundingClientRect();
+  if (cardRect) {
+    createMultipleParticles(cardRect.left + cardRect.width / 2, cardRect.top, "magic", 3, "✨");
+  }
+  
   if (card.effect) {
     executeEffect(card.effect);
   }
@@ -696,14 +1094,6 @@ function generateEnemy(floor) {
   const selected = enemyList[index];
   enemy = { ...selected };
   addLogEntry(`${enemy.name} が現れた！`);
-}
-
-function updateBattleStatus() {
-  document.getElementById("player-hp").textContent = player.hp;
-  document.getElementById("player-mana").textContent = player.mana;
-  document.getElementById("player-shield").textContent = player.shield;
-  document.getElementById("enemy-hp").textContent = enemy.hp;
-  document.getElementById("floor").textContent = floor;
 }
 
 function processTurnEffects() {
@@ -740,6 +1130,8 @@ function processTurnEffects() {
 
 // === 敵ターンの処理 ===
 function enemyTurn() {
+  turnCount++; // ターン数をカウントアップ
+  battleStats.turnsElapsed++; // バトル統計更新
   addLogEntry(`敵のターン！`);
   processTurnEffects();
   applyEnemyStatusEffects(); // 状態異常処理（敵）
@@ -770,6 +1162,20 @@ function enemyTurn() {
 function checkBattleState() {
   const nextFloorBtn = document.getElementById("next-floor-button");
   if (enemy.hp <= 0) {
+    playerCoins += 10; // ボス撃破でコイン獲得
+    updateCoinDisplay();
+    gameStats.battlesWon++; // 勝利回数を更新
+    gameStats.totalCoinsEarned += 10; // 獲得コインを記録
+    if (floor > gameStats.maxFloor) {
+      gameStats.maxFloor = floor; // 最高階層を更新
+    }
+    
+    // 勝利パーティクル
+    const battleArea = document.getElementById("battle-area");
+    if (battleArea) {
+      const rect = battleArea.getBoundingClientRect();
+      createMultipleParticles(rect.left + rect.width / 2, rect.top, "magic", 10, "🎉");
+    }
     if (nextFloorBtn && (nextFloorBtn.style.display === "none" || nextFloorBtn.style.display === "")) {
       addLogEntry("敵を倒した！");
       showRewardSelection();
@@ -777,6 +1183,14 @@ function checkBattleState() {
     return;
   }
   if (player.hp <= 0) {
+    gameStats.battlesLost++; // 敗北回数を更新
+    
+    // 敗北パーティクル
+    const playerElem = document.getElementById("player-character");
+    if (playerElem) {
+      const rect = playerElem.getBoundingClientRect();
+      createMultipleParticles(rect.left + rect.width / 2, rect.top, "damage", 5, "💀");
+    }
     alert("ゲームオーバー！");
     location.reload();
   }
@@ -790,18 +1204,43 @@ function nextFloor() {
   player.mana = 3;
   player.shield = 0;
 
+  // 状態異常とシールドをリセット
+  // プレイヤーの状態異常リセット
+  playerStatus = {
+    healingOverTime: 0,
+    shieldTurns: 0,
+    preventEnemyAction: false,
+    reflectNext: false,
+    poisoned: 0,
+    burned: 0,
+    attackBoost: 0,
+    nextCardFree: false
+  };
+  
+  // 敵の状態異常リセット
+  enemyStatus = {
+    stunned: false,
+    poisoned: 0,
+    burned: 0,
+    attackDown: 0
+  };
+
   const log = document.getElementById("log");
-  addLogEntry(`${floor}階に進んだ！敵が強くなった！`);
+  addLogEntry(`${floor}階に進んだ！敵が強くなった！状態異常がリセットされた！`);
 
   // ★★以上のカードから1枚追加
   const candidateCards = cardPool.filter(c => c.rarity === '★★' || c.rarity === '★★★');
   if (candidateCards.length > 0) {
     const reward = getRandomCards(1, candidateCards)[0];
+    // 構築デッキに追加
+    constructedDeck.push(reward);
+    // 山札にも追加
     playerDeck.push(reward);
     addLogEntry(`報酬として${reward.name}（${reward.rarity}）を獲得！`);
   }
 
   updateBattleStatus();
+  updateStatusIcons(); // 状態異常アイコンも更新
   drawHand();
 }
 
@@ -817,15 +1256,22 @@ function getRarityClass(rarity) {
 }
 
 function endPlayerTurn() {
-  // 使用されたカード（discardPileに既に入っている）以外は戻す
-  const usedIds = new Set(discardPile.map(c => c.id));
-  const unused = currentHand.filter(c => !usedIds.has(c.id));
-  playerDeck.push(...unused);
+  // デバッグログ
+  console.log(`=== endPlayerTurn開始 ===`);
+  console.log(`現在の手札枚数: ${currentHand.length}`);
+  console.log(`現在の山札枚数: ${playerDeck.length}`);
+  console.log(`現在の捨て札枚数: ${discardPile.length}`);
+
+  // 未使用の手札を山札に戻す
+  playerDeck.push(...currentHand);
   currentHand = [];
+  console.log(`手札を山札に戻しました - 山札: ${playerDeck.length}枚`);
+
   // 画面からもすべての手札カードを削除
   const handContainer = document.getElementById("hand-container");
   handContainer.innerHTML = "";
   updateDiscardPileDisplay();
+  console.log(`=== endPlayerTurn終了 ===`);
   drawHand();
 }
 
@@ -894,7 +1340,11 @@ function triggerRandomEvent() {
     addLogEntry(`罠にかかった！HPが${damage}減少した…`);
   } else if (selectedEvent === "merchant") {
     const choice = getRandomCards(1, cardPool)[0];
+    // イベントで獲得したカードを構築デッキに追加
+    constructedDeck.push(choice);
+    // 山札にも追加
     playerDeck.push(choice);
+    playerOwnedCards.push(choice); // 所持カードにも追加
     addLogEntry(`旅商人と出会った。「${choice.name}」のカードを手に入れた！`);
   }
 
@@ -921,8 +1371,12 @@ function saveGame() {
     enemyStatus,
     floor,
     playerDeck,
+    constructedDeck,
     discardPile,
-    playerOwnedCards
+    playerOwnedCards,
+    turnCount,
+    playerCoins,
+    gameStats
   };
 
   try {
@@ -949,8 +1403,12 @@ function loadGame() {
     enemyStatus = saveData.enemyStatus;
     floor = saveData.floor;
     playerDeck = saveData.playerDeck;
+    constructedDeck = saveData.constructedDeck || [];
     discardPile = saveData.discardPile;
     playerOwnedCards = saveData.playerOwnedCards;
+    turnCount = saveData.turnCount || 0;
+    playerCoins = saveData.playerCoins || 0;
+    gameStats = saveData.gameStats || { totalDamage: 0, cardsPlayed: 0, battlesWon: 0, battlesLost: 0, totalCoinsEarned: 0, gachaPulls: 0, maxFloor: 1, playTime: 0 };
 
     // メインメニューのUIを全て非表示に
     document.getElementById("start-battle").style.display = "none";
@@ -968,7 +1426,9 @@ function loadGame() {
 // === メインメニューに戻る処理 ===
 function returnToMainMenu() {
   isInBattle = false;
-  document.getElementById("main-title").style.display = "block"; 
+  // デッキ構築カウントをリセット
+  deckBuildCount = 0;
+  document.getElementById("main-title").style.display = "block";
   document.getElementById("battle-screen").style.display = "none";
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("gacha-area").style.display = "none";
