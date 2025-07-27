@@ -215,6 +215,12 @@ document.addEventListener("DOMContentLoaded", () => {
       playerOwnedCards = [...initialCardPool];
 
       document.getElementById("start-battle").addEventListener("click", () => {
+        // デッキ構築済みの場合は直接バトル開始
+        if (constructedDeck.length > 0) {
+          startBattlePhase();
+          return;
+        }
+        
         document.getElementById("start-battle").style.display = "none";
         document.getElementById("go-gacha").style.display = "none";
         document.getElementById("open-collection").style.display = "none";
@@ -355,6 +361,11 @@ document.addEventListener("DOMContentLoaded", () => {
               // 所持カードに追加
               if (!playerOwnedCards.some(c => c.id === card.id)) {
                 playerOwnedCards.push(card);
+                // 初期カードプールに追加（ガチャで引いたカードを選択可能にする）
+                if (!initialCardPool.some(c => c.id === card.id)) {
+                  initialCardPool.push(card);
+                }
+                addLogEntry(`${card.name}を獲得しました！`);
               }
             });
 
@@ -406,6 +417,11 @@ document.addEventListener("DOMContentLoaded", () => {
               // 所持カードに追加
               if (!playerOwnedCards.some(c => c.id === card.id)) {
                 playerOwnedCards.push(card);
+                // 初期カードプールに追加（ガチャで引いたカードを選択可能にする）
+                if (!initialCardPool.some(c => c.id === card.id)) {
+                  initialCardPool.push(card);
+                }
+                addLogEntry(`${card.name}を獲得しました！`);
               }
             });
 
@@ -846,6 +862,12 @@ function startBattlePhase() {
   document.getElementById("load-game").style.display = "none";
   document.getElementById("show-stats").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
+  document.getElementById("gacha-area").style.display = "none";
+  document.getElementById("path-selection").style.display = "none";
+  document.getElementById("collection-book").style.display = "none";
+  document.getElementById("close-collection").style.display = "none";
+  document.getElementById("return-main-from-gacha").style.display = "none";
+  document.getElementById("return-main").style.display = "inline-block";
 
   // キャラクター再表示や初期UI処理
   document.getElementById("battle-area").innerHTML = `
@@ -1265,6 +1287,25 @@ function nextFloor() {
   updateBattleStatus();
   updateStatusIcons(); // 状態異常アイコンも更新
   drawHand();
+ 
+ // 状態異常アイコンの更新を確実にする
+ setTimeout(() => {
+   updateStatusIcons();
+ }, 100);
+  
+  // UIの表示状態を正しく設定
+ document.getElementById("main-title").style.display = "none";
+ document.getElementById("battle-screen").style.display = "block";
+ document.getElementById("deck-builder").style.display = "none";
+ document.getElementById("gacha-area").style.display = "none";
+ document.getElementById("path-selection").style.display = "none";
+ document.getElementById("collection-book").style.display = "none";
+ document.getElementById("close-collection").style.display = "none";
+ document.getElementById("return-main-from-gacha").style.display = "none";
+ document.getElementById("show-stats").style.display = "none";
+ document.getElementById("load-game").style.display = "none";
+ document.getElementById("save-game").style.display = "inline-block";
+ document.getElementById("return-main").style.display = "inline-block";
 }
 
 function getRarityClass(rarity) {
@@ -1397,6 +1438,7 @@ function saveGame() {
     constructedDeck,
     discardPile,
     playerOwnedCards,
+    initialCardPool,
     turnCount,
     playerCoins,
     gameStats
@@ -1429,6 +1471,7 @@ function loadGame() {
     constructedDeck = saveData.constructedDeck || [];
     discardPile = saveData.discardPile;
     playerOwnedCards = saveData.playerOwnedCards;
+    initialCardPool = saveData.initialCardPool || [];
     turnCount = saveData.turnCount || 0;
     playerCoins = saveData.playerCoins || 0;
     gameStats = saveData.gameStats || { totalDamage: 0, cardsPlayed: 0, battlesWon: 0, battlesLost: 0, totalCoinsEarned: 0, gachaPulls: 0, maxFloor: 1, playTime: 0 };
@@ -1449,8 +1492,12 @@ function loadGame() {
 // === メインメニューに戻る処理 ===
 function returnToMainMenu() {
   isInBattle = false;
-  // デッキ構築カウントをリセット
-  deckBuildCount = 0;
+  // デッキ構築済みの場合はカウントを保持、そうでなければリセット
+  if (constructedDeck.length === 0) {
+    deckBuildCount = 0;
+  } else {
+    deckBuildCount = 10; // デッキ構築済みとして設定
+  }
   document.getElementById("main-title").style.display = "block";
   document.getElementById("battle-screen").style.display = "none";
   document.getElementById("deck-builder").style.display = "none";

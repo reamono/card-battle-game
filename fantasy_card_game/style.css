@@ -127,7 +127,6 @@ body {
 .card-back-front {
   background: white;
   color: #333;
-  transform: rotateY(180deg);
   padding: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   display: flex;
@@ -839,13 +838,17 @@ body.gacha-background {
  
   /* モバイル時のガチャボタン */
   .gacha-buttons {
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
   }
  
   .gacha-button {
-    width: 100%;
+    width: auto;
     max-width: 280px;
+    min-width: 140px;
   }
 
   button {
@@ -894,7 +897,9 @@ body.gacha-background {
     align-items: center;
     justify-content: center;
     gap: 20px;
-    padding-bottom: 60px; /* ボタンが被らないように余白追加 */
+    padding: 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
   }
 
   #log {
