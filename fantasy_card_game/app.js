@@ -177,6 +177,7 @@ function showStats() {
   document.getElementById("battle-screen").style.display = "none";
   document.getElementById("gacha-area").style.display = "none";
   document.getElementById("collection-book").style.display = "none";
+  document.getElementById("return-main-from-gacha").style.display = "none";
   document.getElementById("return-main").style.display = "block";
 }
 
@@ -185,6 +186,12 @@ function closeStats() {
   document.getElementById("main-title").style.display = "block";
   document.getElementById("main-menu").style.display = "flex";
   document.getElementById("return-main").style.display = "none";
+  // メインメニューのボタンを正しく表示
+  document.getElementById("start-battle").style.display = "block";
+  document.getElementById("go-gacha").style.display = "block";
+  document.getElementById("open-collection").style.display = "block";
+  document.getElementById("load-game").style.display = "inline-block";
+  document.getElementById("show-stats").style.display = "block";
 }
 
 // === コイン表示の更新関数 ===
@@ -211,6 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("start-battle").style.display = "none";
         document.getElementById("go-gacha").style.display = "none";
         document.getElementById("open-collection").style.display = "none";
+        document.getElementById("show-stats").style.display = "none";
         document.getElementById("deck-builder").style.display = "block";
         showDeckChoices();
       });
@@ -238,9 +246,11 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("start-battle").style.display = "none";
           document.getElementById("go-gacha").style.display = "none";
           document.getElementById("open-collection").style.display = "none";
+          document.getElementById("show-stats").style.display = "none";
           document.getElementById("load-game").style.display = "none";
           document.getElementById("save-game").style.display = "none";
-          document.getElementById("return-main").style.display = "block";
+          document.getElementById("return-main-from-gacha").style.display = "none";
+          document.getElementById("return-main").style.display = "none";
           document.getElementById("main-title").style.display = "none";
         });
       }
@@ -250,17 +260,27 @@ document.addEventListener("DOMContentLoaded", () => {
         closeBtn.addEventListener("click", () => {
           document.getElementById("collection-book").style.display = "none";
           closeBtn.style.display = "none";
+          // メインメニューを正しく復元
+          document.getElementById("main-title").style.display = "block";
+          document.getElementById("main-menu").style.display = "flex";
+          document.getElementById("start-battle").style.display = "block";
+          document.getElementById("go-gacha").style.display = "block";
+          document.getElementById("open-collection").style.display = "block";
+          document.getElementById("show-stats").style.display = "block";
+          document.getElementById("load-game").style.display = "inline-block";
         });
       }
 
       const saveBtn = document.getElementById("save-game");
       const loadBtn = document.getElementById("load-game");
       const returnBtn = document.getElementById("return-main");
+      const returnFromGachaBtn = document.getElementById("return-main-from-gacha");
       const statsBtn = document.getElementById("show-stats");
       const closeStatsBtn = document.getElementById("close-stats");
       if (saveBtn) saveBtn.addEventListener("click", saveGame);
       if (loadBtn) loadBtn.addEventListener("click", loadGame);
       if (returnBtn) returnBtn.addEventListener("click", returnToMainMenu);
+      if (returnFromGachaBtn) returnFromGachaBtn.addEventListener("click", returnToMainMenu);
       if (statsBtn) statsBtn.addEventListener("click", showStats);
       if (closeStatsBtn) closeStatsBtn.addEventListener("click", closeStats);
       if (loadBtn) loadBtn.style.display = "inline-block";
@@ -274,10 +294,11 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("start-battle").style.display = "none";
           document.getElementById("go-gacha").style.display = "none";
           document.getElementById("open-collection").style.display = "none";
+          document.getElementById("show-stats").style.display = "none";
           document.getElementById("load-game").style.display = "none";
           document.getElementById("save-game").style.display = "none";
-          document.getElementById("return-main").style.display = "inline-block";
-          document.getElementById("return-main-from-gacha").style.display = "none";
+          document.getElementById("return-main").style.display = "none";
+          document.getElementById("return-main-from-gacha").style.display = "inline-block";
           document.getElementById("main-title").style.display = "none";
           document.getElementById("gacha-button").style.display = "inline-block";
           document.body.classList.add("gacha-background");
@@ -750,6 +771,7 @@ function getWeightedRandomCards(n, pool) {
 // デッキ構築用：ランダムに3枚表示
 function showDeckChoices() {
   document.getElementById("load-game").style.display = "none";
+  document.getElementById("show-stats").style.display = "none";
   document.getElementById("return-main").style.display = "block";
   const choiceArea = document.getElementById("deck-choice");
   choiceArea.innerHTML = "";
@@ -822,6 +844,7 @@ function startBattlePhase() {
   document.getElementById("save-game").style.display = "inline-block";
   document.getElementById("deck-builder").style.display = "none";
   document.getElementById("load-game").style.display = "none";
+  document.getElementById("show-stats").style.display = "none";
   document.getElementById("battle-screen").style.display = "block";
 
   // キャラクター再表示や初期UI処理
@@ -1435,6 +1458,7 @@ function returnToMainMenu() {
   document.getElementById("path-selection").style.display = "none";
   document.getElementById("collection-book").style.display = "none";
   document.getElementById("close-collection").style.display = "none";
+  document.getElementById("return-main-from-gacha").style.display = "none";
 
   // メインメニュー表示をリセット
   const mainMenu = document.getElementById("main-menu");
@@ -1444,6 +1468,7 @@ function returnToMainMenu() {
     "start-battle",
     "go-gacha",
     "open-collection",
+    "show-stats",
     "load-game",
     "save-game",
     "return-main"
